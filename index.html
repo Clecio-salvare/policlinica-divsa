@@ -1,0 +1,4118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Policlínica - Agendamento Online</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6;
+        color: #1f2937;
+      }
+
+      .container {
+        max-width: 1000px;
+      }
+
+      .sidebar {
+        background-color: #fff;
+      }
+
+      .content {
+        background-color: #f9fafb;
+      }
+
+      input,
+      select,
+      textarea {
+        border: 1px solid #d1d5db;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        width: 100%;
+        transition: all 0.2s ease-in-out;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: none;
+        border-color: #1c64f2;
+        box-shadow: 0 0 0 2px rgba(28, 100, 242, 0.25);
+      }
+
+      button {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: background-color 0.2s ease-in-out;
+      }
+
+      button:hover {
+        opacity: 0.9;
+      }
+
+      .btn-primary {
+        background-color: #1c64f2;
+        color: #fff;
+      }
+
+      .btn-secondary {
+        background-color: #6b7280;
+        color: #fff;
+      }
+
+      .btn-danger {
+        background-color: #ef4444;
+        color: #fff;
+      }
+
+      .btn-success {
+        background-color: #22c55e;
+        color: #fff;
+      }
+
+      .shadow-card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Custom modal styles */
+      .modal {
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 50;
+      }
+
+      /* Calendar styles */
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.5rem;
+      }
+
+      .calendar-day {
+        padding: 0.5rem;
+        text-align: center;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .calendar-day:hover {
+        background-color: #e5e7eb;
+      }
+
+      .calendar-day.selected {
+        background-color: #3b82f6;
+        color: white;
+        font-weight: bold;
+      }
+
+      .calendar-day.inactive {
+        color: #d1d5db;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+
+  <body class="flex flex-col min-h-screen">
+    <!-- Main App Container -->
+    <div id="app" class="flex flex-1">
+      <!-- Sidebar and Menu (Hidden on mobile by default) -->
+      <aside id="sidebar" class="sidebar flex flex-col justify-between">
+        <div class="logo flex items-center justify-center p-4 space-x-3">
+          <img src="logo.png" alt="Logo da Policlínica" class="h-12 w-auto" />
+          <span class="text-xl font-bold text-gray-800">POLICLÍNICA</span>
+        </div>
+        <!-- resto do menu -->
+
+        <p class="text-sm font-semibold text-gray-500 mb-8">
+          Sistema de Consultas
+        </p>
+        <nav class="flex-1">
+          <ul id="menu-logged-in" class="space-y-2 hidden">
+            <li>
+              <a
+                href="#"
+                data-page="home"
+                class="flex items-center space-x-2 p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001 1h4a1 1 0 001-1m-6 0v-2a1 1 0 011-1h2a1 1 0 011 1v2m-6 0H6a2 2 0 00-2 2v4a2 2 0 002 2h8a2 2 0 002-2v-4a2 2 0 00-2-2h-4"
+                  ></path>
+                </svg>
+                <span>Início</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="#"
+                data-page="agendamento"
+                class="flex items-center space-x-2 p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  ></path>
+                </svg>
+                <span>Agendamento</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="#"
+                data-page="minhas-consultas"
+                class="flex items-center space-x-2 p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+                <span>Minhas Consultas</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="#"
+                data-page="historico-consultas"
+                class="flex items-center space-x-2 p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                  ></path>
+                </svg>
+                <span>Histórico de Consultas</span>
+              </a>
+            </li>
+          </ul>
+          <ul id="menu-admin" class="space-y-2 hidden">
+            <li class="px-3 py-2 text-sm font-semibold text-gray-400">ADMIN</li>
+            <li>
+              <a
+                href="#"
+                data-page="admin-home"
+                class="flex items-center space-x-2 p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.942 3.313.841 2.373 2.373a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.942 1.543-.841 3.313-2.373 2.373a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.942-3.313-.841-2.373-2.373a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.942-1.543.841-3.313 2.373-2.373a1.724 1.724 0 002.573-1.066z"
+                  ></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  ></path>
+                </svg>
+                <span>Painel Admin</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="#"
+                data-page="admin-users"
+                class="flex items-center space-x-2 p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4.354a4 4 0 110 5.292m-2.403 2.384A7.962 7.962 0 0112 11a7.962 7.962 0 012.403 1.736m-2.403-2.384V11m0 0a4 4 0 100 5.292M12 21v-4m-4 4h8a2 2 0 002-2v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2a2 2 0 002 2h8z"
+                  ></path>
+                </svg>
+                <span>Gerenciar Usuários</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="#"
+                data-page="admin-completed"
+                class="flex items-center space-x-2 p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                  ></path>
+                </svg>
+                <span>Histórico de Consultas</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="#"
+                data-page="admin-canceled"
+                class="flex items-center space-x-2 p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
+                </svg>
+                <span>Consultas Canceladas</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="#"
+                data-page="admin-triage"
+                class="flex items-center space-x-2 p-3 rounded-lg hover:bg-gray-100"
+              >
+                <svg
+                  class="w-5 h-5 text-emerald-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 17v-6h13v6m-8 4h8"
+                  />
+                </svg>
+                <span>Triagens</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <div id="user-info" class="mt-auto">
+          <div id="logged-in-user" class="text-sm"></div>
+          <button id="logout-btn" class="w-full btn-secondary mt-4">
+            Sair
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="content flex-1 p-8 md:p-12 transition-all duration-300">
+        <header class="flex justify-between items-center mb-6">
+          <h2 id="page-title" class="text-2xl md:text-3xl font-bold">Início</h2>
+          <button
+            id="mobile-menu-btn"
+            class="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-200"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              ></path>
+            </svg>
+          </button>
+        </header>
+
+        <!-- Loading Indicator -->
+        <div
+          id="loading"
+          class="flex justify-center items-center h-full hidden"
+        >
+          <svg
+            class="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-500"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          <span class="text-lg text-gray-500">Carregando...</span>
+        </div>
+
+        <!-- Content Pages -->
+        <div id="content-container">
+          <!-- Home Page (Login/Register) -->
+          <div id="home-page" class="page">
+            <div
+              id="auth-forms"
+              class="flex justify-center items-center h-full"
+            >
+              <div class="w-full max-w-md p-8 bg-white rounded-xl shadow-card">
+                <div class="text-center mb-6">
+                  <h3 class="text-2xl font-bold">Bem-vindo(a)!</h3>
+                </div>
+                <div
+                  id="welcome-message"
+                  class="text-center text-gray-600 mb-6"
+                >
+                  <p>
+                    Por favor, faça login ou crie sua conta para agendar
+                    consultas.
+                  </p>
+                </div>
+                <form id="login-form" class="space-y-4">
+                  <div>
+                    <label for="login-email" class="block text-sm font-medium"
+                      >Email</label
+                    >
+                    <input
+                      type="email"
+                      id="login-email"
+                      placeholder="exemplo@email.com"
+                      required
+                      autocomplete="email"
+                      class="w-full border rounded-lg p-2"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      for="login-password"
+                      class="block text-sm font-medium"
+                      >Senha</label
+                    >
+                    <input
+                      type="password"
+                      id="login-password"
+                      placeholder="••••••••"
+                      required
+                      autocomplete="current-password"
+                      class="w-full border rounded-lg p-2"
+                    />
+                  </div>
+                  <button type="submit" class="btn-primary w-full">
+                    Entrar
+                  </button>
+                </form>
+                <div class="text-center mt-4">
+                  <button
+                    id="toggle-register"
+                    class="text-sm text-blue-600 hover:underline"
+                  >
+                    Não tem uma conta? Cadastre-se
+                  </button>
+                </div>
+                <form id="register-form" class="space-y-4 hidden">
+                  <div>
+                    <label for="register-name" class="block text-sm font-medium"
+                      >Nome</label
+                    >
+                    <input
+                      type="text"
+                      id="register-name"
+                      placeholder="Seu nome"
+                      required
+                      autocomplete="given-name"
+                      class="w-full border rounded-lg p-2"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      for="register-lastname"
+                      class="block text-sm font-medium"
+                      >Sobrenome</label
+                    >
+                    <input
+                      type="text"
+                      id="register-lastname"
+                      placeholder="Seu sobrenome"
+                      required
+                      autocomplete="family-name"
+                      class="w-full border rounded-lg p-2"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      for="register-matricula"
+                      class="block text-sm font-medium"
+                      >Matrícula</label
+                    >
+                    <input
+                      type="text"
+                      id="register-matricula"
+                      placeholder="Número da matrícula"
+                      autocomplete="off"
+                      class="w-full border rounded-lg p-2"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      for="register-phone"
+                      class="block text-sm font-medium"
+                      >Celular</label
+                    >
+                    <input
+                      type="tel"
+                      id="register-phone"
+                      placeholder="(xx) xxxxx-xxxx"
+                      autocomplete="tel"
+                      class="w-full border rounded-lg p-2"
+                    />
+                  </div>
+                  <div>
+                    <label for="register-dob" class="block text-sm font-medium"
+                      >Data de Nascimento</label
+                    >
+                    <input
+                      type="date"
+                      id="register-dob"
+                      required
+                      autocomplete="bday"
+                      class="w-full border rounded-lg p-2"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      for="register-mother"
+                      class="block text-sm font-medium"
+                      >Nome da Mãe</label
+                    >
+                    <input
+                      type="text"
+                      id="register-mother"
+                      placeholder="Nome completo da mãe"
+                      autocomplete="off"
+                      class="w-full border rounded-lg p-2"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      for="register-email"
+                      class="block text-sm font-medium"
+                      >Email</label
+                    >
+                    <input
+                      type="email"
+                      id="register-email"
+                      placeholder="exemplo@email.com"
+                      required
+                      autocomplete="email"
+                      class="w-full border rounded-lg p-2"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      for="register-password"
+                      class="block text-sm font-medium"
+                      >Senha</label
+                    >
+                    <input
+                      type="password"
+                      id="register-password"
+                      placeholder="••••••••"
+                      required
+                      autocomplete="new-password"
+                      class="w-full border rounded-lg p-2"
+                    />
+                  </div>
+                  <button type="submit" class="btn-primary w-full">
+                    Cadastrar
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Agendamento Page -->
+          <div id="agendamento-page" class="page hidden">
+            <div class="bg-white p-6 rounded-xl shadow-card">
+              <h3 class="text-xl font-bold mb-4">Novo Agendamento</h3>
+              <div class="space-y-4">
+                <div>
+                  <label
+                    for="divisao-select"
+                    class="block text-sm font-medium mb-1"
+                    >Selecione a Divisão</label
+                  >
+                  <select id="divisao-select" class="rounded-lg">
+                    <option value="">Selecione...</option>
+                    <option value="DIVSA">DIVSA (Divisão de Saúde)</option>
+                    <option value="DIVMESO">
+                      DIVMESO (Divisão Médica e de Saúde Ocupacional)
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Triagem Alert for DIVSA -->
+                <!-- Triagem Alert for DIVSA -->
+                <div
+                  id="triage-alert"
+                  class="bg-yellow-100 border-l-4 border-yellow-500 text-yompleteTriageBtnellow-700 p-4 rounded-lg hidden"
+                  role="alert"
+                >
+                  <p class="font-bold">Atenção!</p>
+                  <p>
+                    Para agendar uma consulta na DIVSA, você deve primeiro
+                    passar por uma triagem obrigatória.
+                  </p>
+                </div>
+
+                <!-- Triage Professional Selection -->
+                <div id="triage-professionals-section" class="hidden">
+                  <h4 class="text-lg font-bold mt-4 mb-2">
+                    Selecione o Profissional para Triagem
+                  </h4>
+                  <div id="triage-professionals-list" class="space-y-4"></div>
+                </div>
+
+                <!-- Specialties, Professionals and Calendar -->
+                <div id="specialty-section" class="hidden space-y-4">
+                  <div>
+                    <label
+                      for="specialty-select"
+                      class="block text-sm font-medium mb-1"
+                      >Selecione a Especialidade</label
+                    >
+                    <select id="specialty-select" class="rounded-lg">
+                      <option value="">Selecione...</option>
+                    </select>
+                  </div>
+
+                  <!-- Musculação Type Selection -->
+                  <div id="musculacao-type-section" class="hidden">
+                    <h4 class="text-lg font-bold mb-2">
+                      Selecione o Tipo de Atendimento
+                    </h4>
+                    <div class="flex space-x-4">
+                      <button id="btn-avaliacao" class="btn-primary">
+                        Avaliação Física
+                      </button>
+                      <button id="btn-treino" class="btn-secondary">
+                        Treino
+                      </button>
+                    </div>
+                  </div>
+
+                  <div id="professionals-section" class="hidden">
+                    <h4 class="text-lg font-bold mt-4 mb-2">
+                      Selecione o Profissional
+                    </h4>
+                    <div id="professionals-list" class="space-y-4"></div>
+                  </div>
+                  <div id="calendar-section" class="hidden">
+                    <h4 class="text-lg font-bold mt-4 mb-2">
+                      Selecione a Data e Horário
+                    </h4>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                      <div class="flex justify-between items-center mb-4">
+                        <button
+                          id="prev-month-btn"
+                          class="px-2 py-1 bg-gray-200 rounded-lg"
+                        >
+                          &lt;
+                        </button>
+                        <span
+                          id="current-month-year"
+                          class="font-bold text-lg"
+                        ></span>
+                        <button
+                          id="next-month-btn"
+                          class="px-2 py-1 bg-gray-200 rounded-lg"
+                        >
+                          &gt;
+                        </button>
+                      </div>
+                      <div
+                        class="calendar-grid font-semibold text-sm text-gray-500"
+                      >
+                        <span>Dom</span><span>Seg</span><span>Ter</span
+                        ><span>Qua</span><span>Qui</span><span>Sex</span
+                        ><span>Sáb</span>
+                      </div>
+                      <div
+                        id="calendar-days-grid"
+                        class="calendar-grid mt-2"
+                      ></div>
+                    </div>
+                    <!-- Horários Disponíveis -->
+                    <div id="available-hours-section" class="mt-4 hidden">
+                      <h5 class="text-md font-semibold mb-2">
+                        Horários Disponíveis para
+                        <span id="selected-date-display"></span>
+                      </h5>
+                      <div
+                        id="available-hours-list"
+                        class="flex flex-wrap gap-2"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Minhas Consultas Page -->
+          <div id="minhas-consultas-page" class="page hidden">
+            <div class="bg-white p-6 rounded-xl shadow-card">
+              <h3 class="text-xl font-bold mb-4">Minhas Consultas</h3>
+              <div id="appointments-list" class="space-y-4">
+                <!-- Appointments will be dynamically added here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Histórico de Consultas Page -->
+          <div id="historico-consultas-page" class="page hidden">
+            <div class="bg-white p-6 rounded-xl shadow-card">
+              <h3 class="text-xl font-bold mb-4">Histórico de Consultas</h3>
+              <div id="completed-appointments-list" class="space-y-4">
+                <!-- Completed Appointments will be dynamically added here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Admin Pages -->
+          <div id="admin-page" class="page hidden">
+            <div class="bg-white p-6 rounded-xl shadow-card">
+              <h3 class="text-xl font-bold mb-4">Painel Administrativo</h3>
+
+              <!-- Admin ID Display -->
+              <div class="mb-4 p-4 bg-gray-100 rounded-lg">
+                <h4 class="font-semibold mb-2">ID do Administrador:</h4>
+                <p id="admin-user-id" class="text-sm font-mono break-all"></p>
+              </div>
+              <!-- Página de Triagens Pendentes (Admin) -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Specialties Management -->
+                <div>
+                  <h4 class="text-lg font-bold mb-2">
+                    Gerenciar Especialidades
+                  </h4>
+                  <form id="add-specialty-form" class="space-y-2">
+                    <input
+                      type="text"
+                      id="new-specialty-name"
+                      placeholder="Nome da Especialidade"
+                      required
+                    />
+                    <select id="new-specialty-divisao" required>
+                      <option value="">Selecione a Divisão</option>
+                      <option value="DIVSA">DIVSA</option>
+                      <option value="DIVMESO">DIVMESO</option>
+                    </select>
+                    <button type="submit" class="w-full btn-primary">
+                      Adicionar Especialidade
+                    </button>
+                  </form>
+                  <div id="specialties-admin-list" class="mt-4 space-y-2"></div>
+                </div>
+
+                <!-- Professionals Management -->
+                <div>
+                  <h4 class="text-lg font-bold mb-2">
+                    Gerenciar Profissionais
+                  </h4>
+                  <form id="add-professional-form" class="space-y-2">
+                    <input
+                      type="text"
+                      id="new-professional-name"
+                      placeholder="Nome do Profissional"
+                      required
+                    />
+                    <select id="professional-specialty" required>
+                      <option value="">Selecione a Especialidade</option>
+                    </select>
+                    <button type="submit" class="w-full btn-primary">
+                      Adicionar Profissional
+                    </button>
+                  </form>
+                  <div
+                    id="professionals-admin-list"
+                    class="mt-4 space-y-2"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- All Appointments View -->
+              <div class="mt-8">
+                <h4 class="text-lg font-bold mb-2">
+                  Todas as Consultas Agendadas
+                </h4>
+                <div id="all-appointments-list" class="space-y-4">
+                  <p class="text-gray-500">Carregando todas as consultas...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="admin-users-page" class="page hidden">
+            <div class="bg-white p-6 rounded-xl shadow-card">
+              <h3 class="text-xl font-bold mb-4">Gerenciar Usuários</h3>
+              <div id="users-list" class="space-y-4">
+                <p class="text-gray-500">Carregando usuários...</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="admin-completed-page" class="page hidden">
+            <div class="bg-white p-6 rounded-xl shadow-card">
+              <h3 class="text-xl font-bold mb-4">
+                Histórico de Consultas (Admin)
+              </h3>
+              <div id="admin-completed-list" class="space-y-4">
+                <p class="text-gray-500">
+                  Carregando histórico de consultas...
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div id="admin-canceled-page" class="page hidden">
+            <div class="bg-white p-6 rounded-xl shadow-card">
+              <h3 class="text-xl font-bold mb-4">
+                Consultas Canceladas (Admin)
+              </h3>
+              <div id="admin-canceled-list" class="space-y-4">
+                <p class="text-gray-500">Carregando consultas canceladas...</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="admin-relatorios-page" class="page hidden">
+            <div class="bg-white p-6 rounded-xl shadow-card">
+              <h3 class="text-xl font-bold mb-4">Relatórios</h3>
+              <div class="space-y-4">
+                <div class="flex items-end space-x-4">
+                  <div>
+                    <label
+                      for="relatorio-mes"
+                      class="block text-sm font-medium mb-1"
+                      >Mês</label
+                    >
+                    <select id="relatorio-mes" class="rounded-lg">
+                      <option value="1">Janeiro</option>
+                      <option value="2">Fevereiro</option>
+                      <option value="3">Março</option>
+                      <option value="4">Abril</option>
+                      <option value="5">Maio</option>
+                      <option value="6">Junho</option>
+                      <option value="7">Julho</option>
+                      <option value="8">Agosto</option>
+                      <option value="9">Setembro</option>
+                      <option value="10">Outubro</option>
+                      <option value="11">Novembro</option>
+                      <option value="12">Dezembro</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      for="relatorio-ano"
+                      class="block text-sm font-medium mb-1"
+                      >Ano</label
+                    >
+                    <select id="relatorio-ano" class="rounded-lg">
+                      <option value="2024">2024</option>
+                      <option value="2025">2025</option>
+                      <option value="2026">2026</option>
+                    </select>
+                  </div>
+                  <button id="gerar-relatorio-btn" class="btn-primary">
+                    Gerar Relatório
+                  </button>
+                </div>
+                <div id="relatorio-content" class="mt-4"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toast Messages -->
+        <div
+          id="toast-container"
+          class="fixed bottom-6 right-6 space-y-2"
+        ></div>
+
+        <!-- Modal Container for confirmations/messages and editing -->
+        <div
+          id="modal-container"
+          class="fixed inset-0 flex items-center justify-center hidden modal"
+        >
+          <div class="bg-white p-6 rounded-xl shadow-card w-full max-w-sm">
+            <h4 id="modal-title" class="text-xl font-bold mb-2"></h4>
+            <p id="modal-message" class="text-gray-600 mb-4"></p>
+            <div id="modal-content"></div>
+            <div id="modal-actions" class="flex justify-end space-x-2 mt-4">
+              <button id="modal-cancel-btn" class="btn-secondary">
+                Cancelar
+              </button>
+              <button id="modal-confirm-btn" class="btn-primary">
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Admin: Triagens Pendentes -->
+        <div id="admin-triage-page" class="page hidden">
+          <div class="bg-white p-6 rounded-xl shadow-card">
+            <h3 class="text-xl font-bold mb-4">Triagens pendentes</h3>
+            <div id="admin-triage-list" class="space-y-4">
+              <p class="text-gray-500">Carregando triagens...</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Firebase and PDF Scripts -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
+        onAuthStateChanged,
+        signOut,
+        signInWithCustomToken,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+        getDoc,
+        collection,
+        onSnapshot,
+        updateDoc,
+        deleteDoc,
+        addDoc,
+        getDocs,
+        where,
+        query,
+        collectionGroup,
+        writeBatch,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+      // Global variables for Firebase configuration, provided by the canvas environment
+      const appId = "policlinica-108e9";
+      const firebaseConfig = {
+        apiKey: "AIzaSyDzt_HtUuloD2d3uzs-nxJm2a8K2EbarGI",
+        authDomain: "policlinica-108e9.firebaseapp.com",
+        projectId: "policlinica-108e9",
+        storageBucket: "policlinica-108e9.firebasestorage.app",
+        messagingSenderId: "602580588234",
+        appId: "1:602580588234:web:d94f5ec190396ec6d98633",
+      };
+      const initialAuthToken =
+        typeof __initial_auth_token !== "undefined"
+          ? __initial_auth_token
+          : null;
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const auth = getAuth(app);
+
+      // UI Elements
+      const loadingScreen = document.getElementById("loading");
+      const authForms = document.getElementById("auth-forms");
+      const loggedInMenu = document.getElementById("menu-logged-in");
+      const adminMenu = document.getElementById("menu-admin");
+      const logoutBtn = document.getElementById("logout-btn");
+      const loggedInUserText = document.getElementById("logged-in-user");
+      const pageTitle = document.getElementById("page-title");
+      const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+      const sidebar = document.getElementById("sidebar");
+
+      // Page Containers
+      const homePage = document.getElementById("home-page");
+      const agendamentoPage = document.getElementById("agendamento-page");
+      const minhasConsultasPage = document.getElementById(
+        "minhas-consultas-page"
+      );
+      const historicoConsultasPage = document.getElementById(
+        "historico-consultas-page"
+      );
+      const adminPage = document.getElementById("admin-page");
+      const adminUsersPage = document.getElementById("admin-users-page");
+      const adminCompletedPage = document.getElementById(
+        "admin-completed-page"
+      );
+      const adminCanceledPage = document.getElementById("admin-canceled-page");
+      const adminRelatoriosPage = document.getElementById(
+        "admin-relatorios-page"
+      );
+      const adminTriagePage = document.getElementById("admin-triage-page");
+
+      // Forms and Sections
+      const loginForm = document.getElementById("login-form");
+      const registerForm = document.getElementById("register-form");
+      const toggleRegisterBtn = document.getElementById("toggle-register");
+      const divisaoSelect = document.getElementById("divisao-select");
+      const triageAlert = document.getElementById("triage-alert");
+      const completeTriageBtn = document.getElementById("complete-triage-btn");
+      const specialtySelect = document.getElementById("specialty-select");
+      const specialtySection = document.getElementById("specialty-section");
+      const professionalsSection = document.getElementById(
+        "professionals-section"
+      );
+      const professionalsList = document.getElementById("professionals-list");
+      const appointmentsList = document.getElementById("appointments-list");
+      const completedAppointmentsList = document.getElementById(
+        "completed-appointments-list"
+      );
+      const allAppointmentsList = document.getElementById(
+        "all-appointments-list"
+      );
+      const adminUserIdText = document.getElementById("admin-user-id");
+      const addSpecialtyForm = document.getElementById("add-specialty-form");
+      const newSpecialtyNameInput =
+        document.getElementById("new-specialty-name");
+      const newSpecialtyDivisaoSelect = document.getElementById(
+        "new-specialty-divisao"
+      );
+      const addProfessionalForm = document.getElementById(
+        "add-professional-form"
+      );
+      const newProfessionalNameInput = document.getElementById(
+        "new-professional-name"
+      );
+      const professionalSpecialtySelect = document.getElementById(
+        "professional-specialty"
+      );
+      const specialtiesAdminList = document.getElementById(
+        "specialties-admin-list"
+      );
+      const professionalsAdminList = document.getElementById(
+        "professionals-admin-list"
+      );
+      const usersList = document.getElementById("users-list");
+      const adminCompletedList = document.getElementById(
+        "admin-completed-list"
+      );
+      const adminCanceledList = document.getElementById("admin-canceled-list");
+      const calendarSection = document.getElementById("calendar-section");
+      const currentMonthYearDisplay =
+        document.getElementById("current-month-year");
+      const prevMonthBtn = document.getElementById("prev-month-btn");
+      const nextMonthBtn = document.getElementById("next-month-btn");
+      const calendarDaysGrid = document.getElementById("calendar-days-grid");
+      const availableHoursSection = document.getElementById(
+        "available-hours-section"
+      );
+      const availableHoursList = document.getElementById(
+        "available-hours-list"
+      );
+      const selectedDateDisplay = document.getElementById(
+        "selected-date-display"
+      );
+      const triageProfessionalsSection = document.getElementById(
+        "triage-professionals-section"
+      );
+      const triageProfessionalsList = document.getElementById(
+        "triage-professionals-list"
+      );
+      const musculacaoTypeSection = document.getElementById(
+        "musculacao-type-section"
+      );
+      const btnAvaliacao = document.getElementById("btn-avaliacao");
+      const btnTreino = document.getElementById("btn-treino");
+      const relatorioMes = document.getElementById("relatorio-mes");
+      const relatorioAno = document.getElementById("relatorio-ano");
+      const gerarRelatorioBtn = document.getElementById("gerar-relatorio-btn");
+      const relatorioContent = document.getElementById("relatorio-content");
+
+      // Modal and Toast
+      const modalContainer = document.getElementById("modal-container");
+      const modalTitle = document.getElementById("modal-title");
+      const modalMessage = document.getElementById("modal-message");
+      const modalConfirmBtn = document.getElementById("modal-confirm-btn");
+      const modalCancelBtn = document.getElementById("modal-cancel-btn");
+      const modalContent = document.getElementById("modal-content");
+      const modalActions = document.getElementById("modal-actions");
+      const toastContainer = document.getElementById("toast-container");
+
+      let currentUserId = null;
+      let isAdmin = false;
+
+      // State variables for scheduling
+      let agendamentoFlow = {
+        divisao: "",
+        especialidade: "",
+        tipo: "", // New field for Musculação: 'avaliacao' or 'treino'
+        profissional: "",
+        data: "",
+        horario: "",
+      };
+      let allSpecialties = { DIVSA: [], DIVMESO: [] };
+      let allProfessionals = [];
+      let pacienteData = {};
+      let currentMonth = new Date().getMonth();
+      let currentYear = new Date().getFullYear();
+      let availableAppointments = []; // New state to hold available slots
+
+      // --- TRIAGE: controle do listener para evitar duplicidade ---
+      let triageUnsub = null;
+
+      // UI Functions
+      function showLoading(show) {
+        loadingScreen.classList.toggle("hidden", !show);
+        document
+          .getElementById("content-container")
+          .classList.toggle("hidden", show);
+      }
+
+      function showToast(message, type = "info") {
+        const toast = document.createElement("div");
+        toast.className = `p-4 rounded-lg shadow-lg text-sm text-white ${
+          type === "success"
+            ? "bg-green-500"
+            : type === "error"
+            ? "bg-red-500"
+            : "bg-gray-800"
+        }`;
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      }
+
+      function formatPtBrDate(iso) {
+        if (!iso) return "";
+        const [y, m, d] = iso.split("-");
+        return `${d}/${m}/${y}`;
+      }
+
+      function openConfirmBooking() {
+        const { divisao, especialidade, tipo, profissional, data, horario } =
+          agendamentoFlow;
+
+        if (!divisao || !especialidade || !profissional || !data || !horario) {
+          showToast(
+            "Selecione divisão, especialidade, data e horário.",
+            "error"
+          );
+          return;
+        }
+
+        const nomeExib =
+          tipo && tipo !== "consulta"
+            ? `${especialidade} (${tipo})`
+            : especialidade;
+        const msg = `Confirmar ${nomeExib} com ${profissional} em ${formatPtBrDate(
+          data
+        )} às ${horario}?`;
+
+        showModal(
+          "Confirmar Agendamento",
+          msg,
+          async () => {
+            await bookAppointment(); // só agenda AO CONFIRMAR
+          },
+          true
+        );
+      }
+
+      function showModal(title, message, onConfirm, showCancel = true) {
+        const modalContainer = document.getElementById("modal-container");
+        const modalTitle = document.getElementById("modal-title");
+        const modalMessage = document.getElementById("modal-message");
+        const modalContent = document.getElementById("modal-content");
+        const modalActions = document.getElementById("modal-actions");
+        const modalConfirmBtn = document.getElementById("modal-confirm-btn");
+        const modalCancelBtn = document.getElementById("modal-cancel-btn");
+
+        // Reset
+        modalContent.innerHTML = "";
+        modalActions.classList.remove("hidden");
+        modalConfirmBtn.classList.remove("hidden");
+        modalCancelBtn.classList.toggle("hidden", !showCancel);
+
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+
+        // Remove listeners antigos
+        const confirmClone = modalConfirmBtn.cloneNode(true);
+        const cancelClone = modalCancelBtn.cloneNode(true);
+        modalConfirmBtn.parentNode.replaceChild(confirmClone, modalConfirmBtn);
+        modalCancelBtn.parentNode.replaceChild(cancelClone, modalCancelBtn);
+
+        confirmClone.addEventListener("click", async () => {
+          try {
+            await onConfirm?.();
+          } finally {
+            modalContainer.classList.add("hidden");
+          }
+        });
+        cancelClone.addEventListener("click", () =>
+          modalContainer.classList.add("hidden")
+        );
+
+        modalContainer.classList.remove("hidden");
+      }
+
+      // Handle authentication
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          currentUserId = user.uid;
+          isAdmin = user.email === "admin@policlinica.com";
+
+          authForms.classList.add("hidden");
+          loggedInMenu.classList.remove("hidden");
+          logoutBtn.classList.remove("hidden");
+          loggedInUserText.textContent = `Olá, ${user.email}`;
+          if (isAdmin) {
+            if (isAdmin && !user.email) {
+              console.warn(
+                "⚠️ Usuário admin não encontrado no Firebase Auth. Verifique se admin@policlinica.com foi criado."
+              );
+            }
+
+            adminMenu.classList.remove("hidden");
+            adminUserIdText.textContent = `ID: ${user.uid}`;
+          } else {
+            adminMenu.classList.add("hidden");
+          }
+
+          // Initialize app data after user is authenticated
+          initializeAppData();
+          renderPage("home");
+          showLoading(false);
+        } else {
+          currentUserId = null;
+          isAdmin = false;
+          authForms.classList.remove("hidden");
+          loggedInMenu.classList.add("hidden");
+          adminMenu.classList.add("hidden");
+          logoutBtn.classList.add("hidden");
+          renderPage("home");
+          showLoading(false);
+        }
+      });
+
+      // Data fetching and listeners
+      // Listener para especialidades e profissionais
+      function initializeAppData() {
+        // Especialidades
+        onSnapshot(
+          doc(
+            db,
+            `artifacts/${appId}/public/data/policlinica-admin`,
+            "especialidades"
+          ),
+          (docSnap) => {
+            if (docSnap.exists()) {
+              const data = docSnap.data();
+              allSpecialties.DIVSA = data.divsa || [];
+              allSpecialties.DIVMESO = data.divmeso || [];
+              console.log("Especialidades carregadas:", allSpecialties);
+            }
+          }
+        );
+
+        // PROFISSIONAIS (corrigido policlinica-admin)
+        onSnapshot(
+          doc(
+            db,
+            `artifacts/${appId}/public/data/policlinica-admin`,
+            "profissionais"
+          ),
+          (docSnap) => {
+            allProfessionals = docSnap.exists()
+              ? docSnap.data().list || []
+              : [];
+            console.log("Profissionais carregados:", allProfessionals);
+          }
+        );
+      }
+
+      // FUNÇÃO: SETUP ADMIN LISTENERS
+      function setupAdminListeners() {
+        // Limpa a lista de especialidades no painel admin
+        specialtiesAdminList.innerHTML = "";
+
+        // Escuta mudanças no Firestore (especialidades)
+        onSnapshot(
+          doc(
+            db,
+            `artifacts/${appId}/public/data/policlinica-admin`,
+            "especialidades"
+          ),
+          (docSnap) => {
+            specialtiesAdminList.innerHTML = "";
+            if (docSnap.exists()) {
+              const data = docSnap.data();
+
+              // Garante compatibilidade com letras maiúsculas e minúsculas
+              allSpecialties.DIVSA = data.divsa || data.DIVSA || [];
+              allSpecialties.DIVMESO = data.divmeso || data.DIVMESO || [];
+
+              // Mostra especialidades no painel admin
+              const combinedList = [
+                ...allSpecialties.DIVSA.map((s) => ({
+                  name: s,
+                  divisao: "DIVSA",
+                })),
+                ...allSpecialties.DIVMESO.map((s) => ({
+                  name: s,
+                  divisao: "DIVMESO",
+                })),
+              ];
+
+              combinedList.forEach((spec) => {
+                const item = document.createElement("div");
+                item.className =
+                  "flex justify-between items-center p-2 bg-gray-50 rounded-lg";
+                item.innerHTML = `<span>${spec.name} (${spec.divisao})</span>`;
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.className = "btn-danger px-2 py-1 text-sm";
+                deleteBtn.textContent = "Excluir";
+                deleteBtn.onclick = () =>
+                  deleteSpecialty(spec.name, spec.divisao);
+
+                item.appendChild(deleteBtn);
+                specialtiesAdminList.appendChild(item);
+              });
+
+              // Atualiza select de especialidade ao adicionar profissional
+              professionalSpecialtySelect.innerHTML =
+                '<option value="">Selecione a Especialidade</option>';
+              combinedList.forEach((spec) => {
+                const option = document.createElement("option");
+                option.value = spec.name;
+                option.textContent = spec.name;
+                professionalSpecialtySelect.appendChild(option);
+              });
+            }
+          }
+        );
+
+        // Escuta mudanças nos profissionais
+        onSnapshot(
+          doc(
+            db,
+            `artifacts/${appId}/public/data/policlinica-admin`,
+            "profissionais"
+          ),
+          (docSnap) => {
+            professionalsAdminList.innerHTML = "";
+            if (docSnap.exists()) {
+              const data = docSnap.data();
+              allProfessionals = data.list || [];
+
+              allProfessionals.forEach((prof) => {
+                const item = document.createElement("div");
+                item.className =
+                  "flex justify-between items-center p-2 bg-gray-50 rounded-lg";
+                item.innerHTML = `<span>${prof.nome} (${prof.especialidade})</span>`;
+
+                const actionsDiv = document.createElement("div");
+                actionsDiv.className = "flex space-x-2";
+
+                // Botão para editar horários
+                const editBtn = document.createElement("button");
+                editBtn.className = "btn-secondary px-2 py-1 text-sm";
+                editBtn.textContent = "Editar Horários";
+                editBtn.onclick = () => editProfessional(prof);
+
+                // Botão para excluir profissional
+                const deleteBtn = document.createElement("button");
+                deleteBtn.className = "btn-danger px-2 py-1 text-sm";
+                deleteBtn.textContent = "Excluir";
+                deleteBtn.onclick = () => deleteProfessional(prof.nome);
+
+                actionsDiv.appendChild(editBtn);
+                actionsDiv.appendChild(deleteBtn);
+
+                item.appendChild(actionsDiv);
+                professionalsAdminList.appendChild(item);
+              });
+            }
+          }
+        );
+      }
+
+      // =============================
+      // Função para carregar triagens pendentes (USANDO triageStatus)
+      // =============================
+      async function carregarTriagensPendentes() {
+        const adminTriageList = document.getElementById("admin-triage-list");
+        if (!adminTriageList) {
+          console.error("Elemento admin-triage-list não encontrado no HTML.");
+          return;
+        }
+
+        try {
+          if (typeof triageUnsub === "function") {
+            triageUnsub();
+            triageUnsub = null;
+          }
+
+          console.log("🔍 Buscando triagens pendentes...");
+
+          const q = query(
+            collectionGroup(db, "pacientes"),
+            where("triageStatus", "==", "pendente")
+          );
+
+          triageUnsub = onSnapshot(
+            q,
+            async (snapshot) => {
+              adminTriageList.innerHTML = "";
+
+              if (snapshot.empty) {
+                adminTriageList.innerHTML =
+                  '<p class="text-gray-500">Nenhuma triagem pendente.</p>';
+                return;
+              }
+
+              for (const docSnap of snapshot.docs) {
+                const data = docSnap.data();
+                const pacienteId = docSnap.ref.parent.parent.id;
+                const triagemId = docSnap.id;
+
+                // 🔹 Buscar o doc principal do paciente
+                const pacienteRef = doc(
+                  db,
+                  `artifacts/${appId}/users/${pacienteId}/pacientes`,
+                  pacienteId
+                );
+                const pacienteSnap = await getDoc(pacienteRef);
+                const pacienteData = pacienteSnap.exists()
+                  ? pacienteSnap.data()
+                  : {};
+
+                // 🔹 Juntar dados do paciente principal + dados da triagem
+                const merged = {
+                  ...pacienteData,
+                  ...data, // se tiver campos sobrescreve
+                };
+
+                const item = document.createElement("div");
+                item.className = "bg-gray-100 p-3 rounded-lg shadow-md";
+                item.innerHTML = `
+            <p><b>Nome:</b> ${merged.nome || "---"} ${
+                  merged.sobrenome || ""
+                }</p>
+            <p><b>Email:</b> ${merged.email || "---"}</p>
+            <p><b>Matrícula:</b> ${merged.matricula || "---"}</p>
+            <p><b>Profissional da Triagem:</b> ${
+              merged.profissionalTriagem || merged.profissional || "---"
+            }</p>
+            <div class="flex space-x-2 mt-2">
+              <button class="btn-success px-3 py-1 text-sm" data-paciente="${pacienteId}" data-id="${triagemId}">Concluir</button>
+              <button class="btn-danger px-3 py-1 text-sm" data-paciente="${pacienteId}" data-id="${triagemId}">Cancelar</button>
+            </div>
+          `;
+                adminTriageList.appendChild(item);
+
+                // Concluir triagem
+                item
+                  .querySelector(".btn-success")
+                  .addEventListener("click", async (e) => {
+                    const pId = e.currentTarget.dataset.paciente;
+                    const tId = e.currentTarget.dataset.id;
+                    const path = `artifacts/${appId}/users/${pId}/pacientes/${tId}`;
+                    showModal(
+                      "Concluir triagem",
+                      "Confirmar conclusão da triagem?",
+                      async () => {
+                        await updateDoc(doc(db, path), {
+                          triageStatus: "concluida",
+                          triageConcluida: true,
+                          triageUpdatedAt: Date.now(),
+                        });
+                        showToast("Triagem concluída!", "success");
+                      }
+                    );
+                  });
+
+                // Cancelar triagem
+                item
+                  .querySelector(".btn-danger")
+                  .addEventListener("click", async (e) => {
+                    const pId = e.currentTarget.dataset.paciente;
+                    const tId = e.currentTarget.dataset.id;
+                    const path = `artifacts/${appId}/users/${pId}/pacientes/${tId}`;
+                    showModal(
+                      "Cancelar triagem",
+                      "Cancelar esta triagem?",
+                      async () => {
+                        await updateDoc(doc(db, path), {
+                          triageStatus: "cancelada",
+                          triageConcluida: false,
+                          triageUpdatedAt: Date.now(),
+                        });
+                        showToast("Triagem cancelada.", "info");
+                      }
+                    );
+                  });
+              }
+            },
+            (err) => {
+              console.error("❌ Erro no snapshot de triagens:", err);
+              adminTriageList.innerHTML = `<p class="text-red-600">Erro ao listar triagens.</p>`;
+            }
+          );
+        } catch (e) {
+          console.error("❌ Erro geral ao carregar triagens:", e);
+          adminTriageList.innerHTML =
+            '<p class="text-red-600">Falha ao carregar triagens.</p>';
+        }
+      }
+
+      async function fetchPacienteData() {
+        if (!currentUserId) return null;
+
+        try {
+          const docRef = doc(
+            db,
+            `artifacts/${appId}/users/${currentUserId}/pacientes`,
+            currentUserId
+          );
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            pacienteData = docSnap.data();
+
+            // 🔎 Garantir que triageStatus sempre exista
+            if (!pacienteData.triageStatus) {
+              pacienteData.triageStatus = "pendente";
+              await updateDoc(docRef, {
+                triageStatus: "pendente",
+                triageUpdatedAt: Date.now(),
+              });
+            }
+
+            console.log("✅ Dados do paciente carregados:", pacienteData);
+            return pacienteData;
+          } else {
+            console.warn(
+              "⚠️ Documento do paciente não encontrado. Criando novo..."
+            );
+            pacienteData = {
+              triageStatus: "pendente",
+              createdAt: Date.now(),
+            };
+            await setDoc(docRef, pacienteData);
+            return pacienteData;
+          }
+        } catch (e) {
+          console.error("❌ Erro ao buscar dados do paciente:", e);
+          return null;
+        }
+      }
+
+      /**
+       * Verifica se o paciente está apto para agendar serviços da DIVSA.
+       * @param {Object} paciente - Objeto pacienteData retornado do Firestore.
+       * @returns {boolean} true se triagem concluída, false caso contrário.
+       */
+      function checkTriagem(paciente) {
+        if (!paciente) {
+          console.warn("⚠️ Nenhum paciente carregado em checkTriagem.");
+          return false;
+        }
+
+        if (paciente.triageStatus === "concluida") {
+          return true; // ✅ paciente liberado
+        }
+
+        // Logs de debug (opcional)
+        console.log(
+          "🚫 Triagem não concluída. Status atual:",
+          paciente.triageStatus || "indefinido"
+        );
+
+        return false; // bloqueado para outros serviços
+      }
+
+      // Busca horários já ocupados (exceto treino de musculação e aulas de funcional)
+      // FUNÇÃO PARA BUSCAR HORÁRIOS JÁ RESERVADOS
+      async function getBookedHours(
+        date,
+        professionalName,
+        tipo,
+        especialidade
+      ) {
+        try {
+          // Casos especiais -> não bloqueiam horário (aula coletiva)
+          if (tipo === "treino" || especialidade === "Funcional") {
+            console.log(
+              "👉 Horários livres (sem bloqueio) para:",
+              especialidade,
+              "tipo:",
+              tipo
+            );
+            return [];
+          }
+
+          // Caminho da coleção de agendamentos
+          const bookedRef = collection(
+            db,
+            `artifacts/${appId}/public/data/agendamentos`
+          );
+
+          // Consulta por data e profissional
+          const q = query(
+            bookedRef,
+            where("data", "==", date),
+            where("profissional", "==", professionalName)
+          );
+
+          const querySnapshot = await getDocs(q);
+
+          // Extrai todos os horários já ocupados
+          const reserved = querySnapshot.docs.map(
+            (docSnap) => docSnap.data().horario
+          );
+
+          console.log(
+            "👉 Horários reservados para",
+            professionalName,
+            "em",
+            date,
+            "=>",
+            reserved
+          );
+
+          return reserved;
+        } catch (error) {
+          console.error("❌ Erro ao buscar horários já agendados:", error);
+          return [];
+        }
+      }
+
+      // PDF Generation
+      async function generateAppointmentPDF(appointment, paciente) {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF("p", "mm", "a4");
+
+        // =========================================
+        // LOGO PCPE + TÍTULO
+        // =========================================
+        try {
+          const img = new Image();
+          img.src = "logo.png"; // caminho relativo ao HTML
+          await new Promise((resolve, reject) => {
+            img.onload = () => resolve();
+            img.onerror = reject;
+          });
+
+          pdf.addImage(img, "PNG", 15, 10, 30, 30);
+        } catch (e) {
+          console.warn("Não foi possível carregar logo.png:", e);
+        }
+
+        pdf.setFontSize(18);
+        pdf.setFont("helvetica", "bold");
+        pdf.text("POLICLÍNICA - PCPE", 105, 25, { align: "center" });
+
+        // =========================================
+        // DIVISÃO (colorida)
+        // =========================================
+        pdf.setFontSize(13);
+        pdf.setFont("helvetica", "italic");
+
+        let divText = "";
+        let divColor = [0, 0, 0]; // preto padrão
+
+        if (appointment.divisao === "DIVSA") {
+          divText = "Divisão de Saúde (DIVSA)";
+          divColor = [0, 102, 204]; // azul
+        } else {
+          divText = "Divisão Médica e de Saúde Ocupacional (DIVMESO)";
+          divColor = [0, 153, 76]; // verde
+        }
+
+        pdf.setTextColor(...divColor);
+        pdf.text(divText, 105, 35, { align: "center" });
+        pdf.setTextColor(0, 0, 0); // volta para preto
+
+        // =========================================
+        // DADOS DO PACIENTE
+        // =========================================
+        pdf.setFontSize(12);
+        pdf.setFont("helvetica", "normal");
+
+        const pacienteNome = paciente?.nome ?? "—";
+        const pacienteSob = paciente?.sobrenome ?? "";
+        const pacienteMat = paciente?.matricula ?? "—";
+        const pacienteFone = paciente?.celular ?? "—";
+
+        let y = 50;
+        pdf.text(`Paciente: ${pacienteNome} ${pacienteSob}`, 15, y);
+        y += 8;
+        pdf.text(`Matrícula: ${pacienteMat}`, 15, y);
+        y += 8;
+        if (pacienteFone && pacienteFone !== "—") {
+          pdf.text(`Telefone: ${pacienteFone}`, 15, y);
+          y += 8;
+        }
+
+        // =========================================
+        // DADOS DO AGENDAMENTO
+        // =========================================
+        const nomeExib =
+          appointment.tipo && appointment.tipo !== "consulta"
+            ? `${appointment.especialidade} (${appointment.tipo})`
+            : appointment.especialidade;
+
+        y += 5;
+        pdf.text(`Atendimento: ${nomeExib}`, 15, y);
+        y += 8;
+        pdf.text(`Profissional: ${appointment.profissional ?? "—"}`, 15, y);
+        y += 8;
+        pdf.text(
+          `Data: ${appointment.data ? formatPtBrDate(appointment.data) : "—"}`,
+          15,
+          y
+        );
+        y += 8;
+        pdf.text(`Horário: ${appointment.horario ?? "—"}`, 15, y);
+        y += 8;
+        pdf.text(`Status: ${appointment.status ?? "—"}`, 15, y);
+
+        // =========================================
+        // RODAPÉ COM INSTRUÇÕES
+        // =========================================
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "italic");
+        pdf.setTextColor(100);
+
+        pdf.text(
+          "Por favor, apresente este comprovante no dia da consulta.\n" +
+            "Chegar com 15 minutos de antecedência para evitar atrasos.",
+          105,
+          260,
+          { align: "center" }
+        );
+
+        pdf.setFont("helvetica", "normal");
+        pdf.setTextColor(50);
+        pdf.text(
+          "Endereço: Rua Tabira, 208 - Boa Vista - Recife/PE. Telefone: (81) 3184-3848",
+          105,
+          275,
+          { align: "center" }
+        );
+
+        // =========================================
+        // SALVAR
+        // =========================================
+        pdf.save("comprovante_agendamento.pdf");
+      }
+
+      async function generateRelatorioPDF(mes, ano) {
+        showLoading(true);
+        const { jsPDF } = window.jspdf;
+        const docSnap = new jsPDF("p", "mm", "a4");
+        const margin = 20;
+        const lineHeight = 7;
+        let y = margin;
+
+        docSnap.setFontSize(16);
+        docSnap.text(
+          `Relatório Mensal de Atendimentos - ${mes}/${ano}`,
+          margin,
+          y
+        );
+        y += lineHeight * 2;
+
+        relatorioContent.innerHTML = "Gerando relatório...";
+        const startOfMonth = new Date(ano, mes - 1, 1);
+        const endOfMonth = new Date(ano, mes, 0);
+
+        const q = query(
+          collectionGroup(db, "consultas"),
+          where("status", "==", "concluída")
+        );
+
+        const querySnapshot = await getDocs(q);
+
+        const appointmentsByProf = {};
+        const allAppointments = [];
+
+        for (const docSnap of querySnapshot.docs) {
+          const data = docSnap.data();
+          const appointmentDate = new Date(data.data + "T00:00:00");
+          if (
+            appointmentDate >= startOfMonth &&
+            appointmentDate <= endOfMonth
+          ) {
+            const patientDocRef = doc(
+              db,
+              `artifacts/${appId}/users/${data.pacienteId}/pacientes`,
+              data.pacienteId
+            );
+            const patientDocSnap = await getDoc(patientDocRef);
+            let pacienteNome = "Desconhecido";
+            if (patientDocSnap.exists()) {
+              pacienteNome =
+                patientDocSnap.data().nome +
+                " " +
+                patientDocSnap.data().sobrenome;
+            }
+            allAppointments.push({ ...data, pacienteNome });
+          }
+        }
+
+        allAppointments.sort((a, b) => a.data.localeCompare(b.data));
+
+        const total = allAppointments.length;
+        docSnap.setFontSize(12);
+        docSnap.text(`Total de atendimentos: ${total}`, margin, y);
+        y += lineHeight * 2;
+
+        allAppointments.forEach((appt) => {
+          const appointmentName = appt.tipo
+            ? `${appt.especialidade} (${appt.tipo})`
+            : appt.especialidade;
+
+          docSnap.setFontSize(10);
+          docSnap.text(`Profissional: ${appt.profissional}`, margin, y);
+          y += lineHeight;
+          docSnap.text(`Paciente: ${appt.pacienteNome}`, margin, y);
+          y += lineHeight;
+          docSnap.text(`Especialidade: ${appointmentName}`, margin, y);
+          y += lineHeight;
+          docSnap.text(
+            `Data: ${appt.data} - Horário: ${appt.horario}`,
+            margin,
+            y
+          );
+          y += lineHeight;
+
+          if (y > 280) {
+            // Check for page break
+            docSnap.addPage();
+            y = margin;
+          }
+        });
+
+        docSnap.save(`Relatorio_${mes}-${ano}.pdf`);
+        showLoading(false);
+        showToast("Relatório gerado com sucesso!", "success");
+      }
+
+      // Calendar functions
+      // ========= CALENDÁRIO (ÚNICO) =========
+      // CALENDÁRIO – usa chaves 'dom','seg','ter','qua','qui','sex','sab'
+      async function renderCalendar(month, year, professional, tipo) {
+        const today = new Date();
+        const first = new Date(year, month, 1);
+        const last = new Date(year, month + 1, 0);
+        const daysIn = last.getDate();
+
+        currentMonthYearDisplay.textContent = `${first.toLocaleString("pt-BR", {
+          month: "long",
+        })} ${year}`;
+        calendarDaysGrid.innerHTML = "";
+
+        // células vazias antes do dia 1
+        for (let i = 0; i < first.getDay(); i++) {
+          calendarDaysGrid.appendChild(document.createElement("div"));
+        }
+
+        const weekdayNames = ["dom", "seg", "ter", "qua", "qui", "sex", "sab"];
+
+        for (let day = 1; day <= daysIn; day++) {
+          const cell = document.createElement("div");
+          cell.textContent = day;
+          cell.className = "calendar-day";
+
+          const cellDate = new Date(year, month, day);
+          const isPast =
+            cellDate <
+            new Date(today.getFullYear(), today.getMonth(), today.getDate());
+          const dayKey = weekdayNames[cellDate.getDay()];
+
+          // pega horários do profissional para o dia
+          // Musculação: horários ficam em horarios.avaliacao/treino[dayKey]
+          // Demais: horarios[dayKey]
+          const isMusculacao =
+            String(professional?.especialidade || "").toLowerCase() ===
+            "musculação";
+          const hoursKey = tipo === "treino" ? "treino" : "avaliacao";
+
+          let raw = [];
+          if (isMusculacao) {
+            raw = professional?.horarios?.[hoursKey]?.[dayKey] || [];
+          } else {
+            raw = professional?.horarios?.[dayKey] || [];
+          }
+
+          // normaliza se veio como ["08:00, 09:00"] etc.
+          const hours = Array.isArray(raw)
+            ? raw
+                .flatMap((v) =>
+                  typeof v === "string" && v.includes(",") ? v.split(",") : v
+                )
+                .map((s) => (typeof s === "string" ? s.trim() : s))
+                .filter(Boolean)
+            : [];
+
+          const hasHours = hours.length > 0;
+
+          if (isPast || !hasHours) {
+            cell.classList.add("inactive");
+          } else {
+            cell.addEventListener("click", async () => {
+              agendamentoFlow.data = `${year}-${String(month + 1).padStart(
+                2,
+                "0"
+              )}-${String(day).padStart(2, "0")}`;
+              selectedDateDisplay.textContent = `${String(day).padStart(
+                2,
+                "0"
+              )}/${String(month + 1).padStart(2, "0")}/${year}`;
+
+              // marca seleção
+              document
+                .querySelectorAll(".calendar-day.selected")
+                .forEach((el) => el.classList.remove("selected"));
+              cell.classList.add("selected");
+
+              await renderAvailableHours(professional, tipo);
+            });
+          }
+
+          calendarDaysGrid.appendChild(cell);
+        }
+      }
+
+      // ========= HORÁRIOS DISPONÍVEIS (ÚNICO) =========
+      // HORÁRIOS – usa chaves 'dom','seg','ter','qua','qui','sex','sab'
+      async function renderAvailableHours(professional, tipo) {
+        const availableHoursSection = document.getElementById(
+          "available-hours-section"
+        );
+        const availableHoursList = document.getElementById(
+          "available-hours-list"
+        );
+
+        availableHoursList.innerHTML = "";
+        availableHoursSection.classList.remove("hidden");
+
+        if (!agendamentoFlow.data) {
+          availableHoursList.innerHTML =
+            '<p class="text-gray-500">Escolha uma data no calendário.</p>';
+          return;
+        }
+
+        const weekdayNames = ["dom", "seg", "ter", "qua", "qui", "sex", "sab"];
+        const dateObj = new Date(agendamentoFlow.data + "T00:00:00");
+        const dayKey = weekdayNames[dateObj.getDay()];
+
+        const isMusculacao =
+          String(professional?.especialidade || "").toLowerCase() ===
+          "musculação";
+        const hoursKey = tipo === "treino" ? "treino" : "avaliacao";
+
+        // pega horários brutos
+        let raw = [];
+        if (isMusculacao) {
+          raw = professional?.horarios?.[hoursKey]?.[dayKey] || [];
+        } else {
+          raw = professional?.horarios?.[dayKey] || [];
+        }
+
+        // normaliza se veio como ["08:00, 09:00"]
+        const allHours = Array.isArray(raw)
+          ? raw
+              .flatMap((v) =>
+                typeof v === "string" && v.includes(",") ? v.split(",") : v
+              )
+              .map((s) => (typeof s === "string" ? s.trim() : s))
+              .filter(Boolean)
+          : [];
+
+        // horários bloqueados (não bloqueia para treino nem para Funcional)
+        let booked = [];
+        const isFuncional =
+          String(agendamentoFlow.especialidade || "").toLowerCase() ===
+          "funcional";
+        if (!isFuncional && !(isMusculacao && hoursKey === "treino")) {
+          booked = await getBookedHours(
+            agendamentoFlow.data,
+            professional.nome,
+            isMusculacao ? hoursKey : "avaliacao", // nas demais a lógica é "consulta"
+            agendamentoFlow.especialidade
+          );
+        }
+
+        const available = allHours.filter((h) => !booked.includes(h));
+
+        if (!available.length) {
+          availableHoursList.innerHTML =
+            '<p class="text-gray-500">Nenhum horário disponível para esta data.</p>';
+          return;
+        }
+
+        available.forEach((h) => {
+          const btn = document.createElement("button");
+          btn.className =
+            "px-3 py-1 bg-blue-500 text-white text-sm rounded-full hover:bg-blue-600 transition-colors duration-200";
+          btn.textContent = h;
+          btn.addEventListener("click", () => {
+            agendamentoFlow.horario = h;
+            agendamentoFlow.profissional = professional.nome;
+            agendamentoFlow.tipo = isMusculacao ? hoursKey : "consulta";
+            openConfirmBooking(); // abre modal de confirmação
+          });
+          availableHoursList.appendChild(btn);
+        });
+      }
+
+      async function renderTriageProfessionals(callback) {
+        triageProfessionalsList.innerHTML = "";
+        const triageSpecialties = ["Enfermeiro", "Farmacêutico"];
+        const triageProfessionals = allProfessionals.filter((p) =>
+          triageSpecialties.includes(p.especialidade)
+        );
+
+        triageProfessionals.forEach((prof) => {
+          const card = document.createElement("div");
+          card.className = "bg-gray-100 p-4 rounded-lg shadow-sm";
+          card.innerHTML = `<h5 class="font-semibold text-lg">${prof.nome}</h5><p class="text-sm text-gray-500">${prof.especialidade}</p>`;
+          const selectBtn = document.createElement("button");
+          selectBtn.className = "btn-primary mt-2";
+          selectBtn.textContent = "Selecionar";
+          selectBtn.onclick = async () => {
+            agendamentoFlow.profissional = prof.nome;
+
+            // 🔹 Já registra no banco que o paciente está em triagem pendente
+            const docRef = doc(
+              db,
+              `artifacts/${appId}/users/${currentUserId}/pacientes`,
+              currentUserId
+            );
+            await setDoc(
+              docRef,
+              {
+                triageStatus: "pendente",
+                triageUpdatedAt: Date.now(),
+                profissional: prof.nome, // guarda o profissional escolhido
+              },
+              { merge: true }
+            );
+
+            triageProfessionalsSection.classList.add("hidden");
+            calendarSection.classList.remove("hidden");
+            await renderCalendar(currentMonth, currentYear, prof, "avaliacao");
+          };
+          card.appendChild(selectBtn);
+          triageProfessionalsList.appendChild(card);
+        });
+      }
+
+      // Logic for scheduling and UI
+      async function updateEspecialidadesUI() {
+        specialtySelect.innerHTML = '<option value="">Selecione...</option>';
+        const specialties =
+          allSpecialties[agendamentoFlow.divisao?.toLowerCase()] || [];
+        specialties.forEach((spec) => {
+          const option = document.createElement("option");
+          option.value = spec;
+          option.textContent = spec;
+          specialtySelect.appendChild(option);
+        });
+      }
+
+      async function updateProfessionalsUI(tipo, callback = () => {}) {
+        professionalsList.innerHTML = "";
+        const professionals = allProfessionals.filter(
+          (p) => p.especialidade === agendamentoFlow.especialidade
+        );
+        if (professionals.length === 0) {
+          professionalsList.innerHTML =
+            '<p class="text-gray-500">Nenhum profissional disponível para esta especialidade.</p>';
+          return;
+        }
+
+        professionals.forEach((prof) => {
+          const card = document.createElement("div");
+          card.className = "bg-gray-100 p-4 rounded-lg shadow-sm";
+          card.innerHTML = `<h5 class="font-semibold text-lg">${prof.nome}</h5>`;
+          const selectBtn = document.createElement("button");
+          selectBtn.className = "btn-primary mt-2";
+          selectBtn.textContent = "Selecionar";
+          selectBtn.onclick = async () => {
+            agendamentoFlow.profissional = prof.nome;
+            calendarSection.classList.remove("hidden");
+            await renderCalendar(currentMonth, currentYear, prof, tipo);
+          };
+          card.appendChild(selectBtn);
+          professionalsList.appendChild(card);
+        });
+      }
+
+      // Event Listeners
+      document.querySelectorAll("[data-page]").forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          const page = e.target.closest("a").getAttribute("data-page");
+          renderPage(page);
+        });
+      });
+
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        showLoading(true);
+        const email = e.target.elements["login-email"].value;
+        const password = e.target.elements["login-password"].value;
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+          showToast("Login realizado com sucesso!", "success");
+        } catch (error) {
+          showToast("Erro no login. Verifique seu email e senha.", "error");
+          console.error("Erro de login:", error);
+          showLoading(false);
+        }
+      });
+
+      // ============================
+      // FUNÇÃO CONCLUIR TRIAGEM
+      // ============================
+      async function concluirTriagem(userId) {
+        try {
+          await updateDoc(
+            doc(db, `artifacts/${appId}/users/${userId}/pacientes`, userId),
+            { triageConcluida: true }
+          );
+          showToast("✅ Triagem concluída com sucesso!", "success");
+        } catch (e) {
+          console.error("Erro ao concluir triagem:", e);
+          showToast("Erro ao concluir triagem.", "error");
+        }
+      }
+
+      registerForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        showLoading(true);
+        const name = e.target.elements["register-name"].value;
+        const lastName = e.target.elements["register-lastname"].value;
+        const matricula = e.target.elements["register-matricula"].value;
+        const phone = e.target.elements["register-phone"].value;
+        const dob = e.target.elements["register-dob"].value;
+        const motherName = e.target.elements["register-mother"].value;
+        const email = e.target.elements["register-email"].value;
+        const password = e.target.elements["register-password"].value;
+        try {
+          const userCredential = await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+          const user = userCredential.user;
+          await setDoc(
+            doc(db, `artifacts/${appId}/users/${user.uid}/pacientes`, user.uid),
+            {
+              nome: name,
+              sobrenome: lastName,
+              matricula: matricula,
+              celular: phone,
+              data_nascimento: dob,
+              nome_mae: motherName,
+              email: email,
+              triageConcluida: false, // compatibilidade legado
+              triageStatus: "pendente", // 🔹 novo campo usado pelo admin
+              triageUpdatedAt: Date.now(), // para auditoria/ordenar
+              avaliacaoMusculacaoConcluida: false,
+            }
+          );
+
+          showToast("Cadastro realizado com sucesso!", "success");
+        } catch (error) {
+          showToast("Erro no cadastro. Verifique os dados.", "error");
+          console.error("Erro de cadastro:", error);
+          showLoading(false);
+        }
+      });
+
+      toggleRegisterBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        loginForm.classList.toggle("hidden");
+        registerForm.classList.toggle("hidden");
+        e.target.textContent = loginForm.classList.contains("hidden")
+          ? "Já tem uma conta? Entrar"
+          : "Não tem uma conta? Cadastre-se";
+      });
+
+      logoutBtn.addEventListener("click", async () => {
+        try {
+          await signOut(auth);
+          showToast("Você saiu da sua conta.");
+        } catch (error) {
+          showToast("Erro ao sair.", "error");
+        }
+      });
+
+      mobileMenuBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("hidden");
+      });
+
+      divisaoSelect.addEventListener("change", async (e) => {
+        agendamentoFlow.divisao = e.target.value;
+        specialtySelect.innerHTML = '<option value="">Selecione...</option>';
+        specialtySection.classList.add("hidden");
+        professionalsSection.classList.add("hidden");
+        calendarSection.classList.add("hidden");
+        availableHoursSection.classList.add("hidden");
+        triageAlert.classList.add("hidden");
+        triageProfessionalsSection.classList.add("hidden");
+        musculacaoTypeSection.classList.add("hidden");
+
+        if (agendamentoFlow.divisao === "DIVSA") {
+          const paciente = await fetchPacienteData();
+
+          // ⚠️ Bloqueia se a triagem não foi concluída
+          if (!paciente || paciente.triageStatus !== "concluida") {
+            triageAlert.classList.remove("hidden");
+            triageProfessionalsSection.classList.remove("hidden");
+            await renderTriageProfessionals();
+            return;
+          }
+        }
+
+        // ✅ Se chegou aqui, pode mostrar as especialidades
+        specialtySection.classList.remove("hidden");
+        await updateEspecialidadesUI();
+      });
+
+      specialtySelect.addEventListener("change", async (e) => {
+        agendamentoFlow.especialidade = e.target.value;
+        professionalsSection.classList.add("hidden");
+        calendarSection.classList.add("hidden");
+        availableHoursSection.classList.add("hidden");
+        musculacaoTypeSection.classList.add("hidden");
+
+        if (agendamentoFlow.especialidade === "Musculação") {
+          await fetchPacienteData();
+          if (!pacienteData.avaliacaoMusculacaoConcluida) {
+            btnAvaliacao.classList.remove("hidden");
+            btnTreino.classList.add("hidden");
+            musculacaoTypeSection.classList.remove("hidden");
+          } else {
+            btnAvaliacao.classList.add("hidden");
+            btnTreino.classList.remove("hidden");
+            musculacaoTypeSection.classList.remove("hidden");
+          }
+        } else if (agendamentoFlow.especialidade) {
+          musculacaoTypeSection.classList.add("hidden");
+          professionalsSection.classList.remove("hidden");
+          await updateProfessionalsUI("avaliacao");
+        }
+      });
+
+      btnAvaliacao.addEventListener("click", async () => {
+        agendamentoFlow.tipo = "avaliacao";
+        professionalsSection.classList.remove("hidden");
+        await updateProfessionalsUI("avaliacao");
+      });
+
+      btnTreino.addEventListener("click", async () => {
+        agendamentoFlow.tipo = "treino";
+        professionalsSection.classList.remove("hidden");
+        await updateProfessionalsUI("treino");
+      });
+
+      // SALVAR AGENDAMENTO (Consulta ou Aula)
+      async function bookAppointment() {
+        try {
+          // (1) garantir dados do paciente
+          await fetchPacienteData(); // preenche pacienteData a partir do Firestore
+
+          const newAppointment = {
+            pacienteId: currentUserId,
+            data: agendamentoFlow.data,
+            horario: agendamentoFlow.horario,
+            especialidade: agendamentoFlow.especialidade,
+            profissional: agendamentoFlow.profissional,
+            divisao: agendamentoFlow.divisao,
+            status: "agendada",
+            tipo: agendamentoFlow.tipo || "consulta",
+            createdAt: Date.now(),
+          };
+
+          // (2) grava agendamento do usuário
+          await addDoc(
+            collection(
+              db,
+              `artifacts/${appId}/users/${currentUserId}/consultas`
+            ),
+            newAppointment
+          );
+
+          // (2b) se for TRIAGEM da DIVSA → atualizar status do paciente
+          if (
+            newAppointment.divisao === "DIVSA" &&
+            ((newAppointment.especialidade || "").toLowerCase() === "triagem" ||
+              (newAppointment.tipo || "").toLowerCase() === "triagem")
+          ) {
+            console.log("🟡 Registrando paciente como triagem pendente");
+            await setDoc(
+              doc(
+                db,
+                `artifacts/${appId}/users/${currentUserId}/pacientes`,
+                currentUserId
+              ),
+              {
+                triageConcluida: false, // compatibilidade
+                triageStatus: "pendente",
+                triageUpdatedAt: Date.now(),
+                profissionalTriagem:
+                  newAppointment.profissional || "Não informado",
+                nome: pacienteData?.nome || "",
+                sobrenome: pacienteData?.sobrenome || "",
+                matricula: pacienteData?.matricula || "",
+                celular: pacienteData?.celular || "",
+                email: pacienteData?.email || "",
+              },
+              { merge: true }
+            );
+          }
+
+          // (3) bloqueia horário (exceto treino musculação e “Funcional”)
+          const ehTreinoMusculacao =
+            newAppointment.especialidade === "Musculação" &&
+            newAppointment.tipo === "treino";
+          const ehFuncional = newAppointment.especialidade === "Funcional";
+
+          if (!ehTreinoMusculacao && !ehFuncional) {
+            const bookedId = `${newAppointment.data}-${newAppointment.profissional}-${newAppointment.horario}`;
+            await setDoc(
+              doc(db, `artifacts/${appId}/public/data/agendamentos`, bookedId),
+              {
+                data: newAppointment.data,
+                horario: newAppointment.horario,
+                profissional: newAppointment.profissional,
+              }
+            );
+          }
+
+          // (4) gera PDF de comprovante (tanto DIVSA quanto DIVMESO)
+          generateAppointmentPDF(newAppointment, pacienteData);
+
+          // (5) feedback
+          showToast("Agendamento realizado com sucesso!", "success");
+          renderPage("minhas-consultas");
+        } catch (e) {
+          console.error("Erro ao agendar:", e);
+          showToast("Erro ao agendar.", "error");
+        }
+      }
+
+      function showReceiptModal(appointment) {
+        const modalContainer = document.getElementById("modal-container");
+        const modalTitle = document.getElementById("modal-title");
+        const modalMessage = document.getElementById("modal-message");
+        const modalContent = document.getElementById("modal-content");
+        const modalActions = document.getElementById("modal-actions");
+        const modalConfirmBtn = document.getElementById("modal-confirm-btn");
+        const modalCancelBtn = document.getElementById("modal-cancel-btn");
+
+        // limpa e configura visual
+        modalTitle.textContent = "Agendado com sucesso!";
+        modalMessage.textContent =
+          "Você pode baixar o comprovante em PDF ou fechar.";
+        modalContent.innerHTML = `
+                <div class="text-sm text-gray-700 space-y-1">
+                    <p><strong>Paciente:</strong> ${
+                      pacienteData?.nome ?? "—"
+                    } ${pacienteData?.sobrenome ?? ""}</p>
+                    <p><strong>Matrícula:</strong> ${
+                      pacienteData?.matricula ?? "—"
+                    }</p>
+                    <p><strong>Especialidade:</strong> ${
+                      appointment.especialidade
+                    }${
+          appointment.tipo && appointment.tipo !== "consulta"
+            ? ` (${appointment.tipo})`
+            : ""
+        }</p>
+                    <p><strong>Profissional:</strong> ${
+                      appointment.profissional
+                    }</p>
+                    <p><strong>Data:</strong> ${formatPtBrDate(
+                      appointment.data
+                    )}</p>
+                    <p><strong>Horário:</strong> ${appointment.horario}</p>
+                </div>
+            `;
+
+        // dois botões: Baixar PDF / Fechar
+        modalActions.classList.remove("hidden");
+        modalConfirmBtn.classList.remove("hidden");
+        modalCancelBtn.classList.remove("hidden");
+        modalCancelBtn.textContent = "Fechar";
+        modalConfirmBtn.textContent = "Baixar PDF";
+
+        // remove listeners antigos clonando
+        const confirmClone = modalConfirmBtn.cloneNode(true);
+        const cancelClone = modalCancelBtn.cloneNode(true);
+        modalConfirmBtn.parentNode.replaceChild(confirmClone, modalConfirmBtn);
+        modalCancelBtn.parentNode.replaceChild(cancelClone, modalCancelBtn);
+
+        confirmClone.addEventListener("click", async () => {
+          try {
+            await generateAppointmentPDF(appointment, pacienteData);
+          } finally {
+            modalContainer.classList.add("hidden");
+          }
+        });
+        cancelClone.addEventListener("click", () =>
+          modalContainer.classList.add("hidden")
+        );
+
+        modalContainer.classList.remove("hidden");
+      }
+
+      // BOTÃO CONFIRMAR AGENDAMENTO
+      const confirmAppointmentBtn = document.getElementById(
+        "confirm-appointment-btn"
+      );
+
+      if (confirmAppointmentBtn) {
+        confirmAppointmentBtn.addEventListener("click", async () => {
+          if (
+            !agendamentoFlow.data ||
+            !agendamentoFlow.horario ||
+            !agendamentoFlow.profissional
+          ) {
+            showToast(
+              "⚠️ Selecione a data, horário e profissional antes de confirmar!",
+              "error"
+            );
+            return;
+          }
+          await bookAppointment();
+        });
+      }
+
+      prevMonthBtn.addEventListener("click", async () => {
+        currentMonth--;
+        if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+        const professional = allProfessionals.find(
+          (p) => p.nome === agendamentoFlow.profissional
+        );
+        await renderCalendar(
+          currentMonth,
+          currentYear,
+          professional,
+          agendamentoFlow.tipo
+        );
+      });
+
+      nextMonthBtn.addEventListener("click", async () => {
+        currentMonth++;
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        }
+        const professional = allProfessionals.find(
+          (p) => p.nome === agendamentoFlow.profissional
+        );
+        await renderCalendar(
+          currentMonth,
+          currentYear,
+          professional,
+          agendamentoFlow.tipo
+        );
+      });
+
+      // Render page
+      function renderPage(page) {
+        const pages = [
+          homePage,
+          agendamentoPage,
+          minhasConsultasPage,
+          historicoConsultasPage,
+          adminPage,
+          adminUsersPage,
+          adminCompletedPage,
+          adminCanceledPage,
+          adminRelatoriosPage,
+          adminTriagePage,
+        ];
+        pages.forEach((p) => p && p.classList.add("hidden"));
+
+        if (page !== "admin-triage" && typeof triageUnsub === "function") {
+          triageUnsub();
+          triageUnsub = null;
+        }
+
+        let pageToRender = null;
+        let title = "Início";
+
+        switch (page) {
+          case "home":
+            pageToRender = homePage;
+            title = "Início";
+            break;
+          case "agendamento":
+            if (!currentUserId) return;
+            pageToRender = agendamentoPage;
+            title = "Agendar Consulta";
+            break;
+          case "minhas-consultas":
+            if (!currentUserId) return;
+            pageToRender = minhasConsultasPage;
+            title = "Minhas Consultas";
+            fetchAppointments("agendada", appointmentsList);
+            break;
+          case "historico-consultas":
+            if (!currentUserId) return;
+            pageToRender = historicoConsultasPage;
+            title = "Histórico de Consultas";
+            fetchAppointments("concluída", completedAppointmentsList);
+            break;
+          case "admin-home":
+            if (!isAdmin) return;
+            pageToRender = adminPage;
+            title = "Painel Administrativo";
+            setupAdminListeners();
+            break;
+          case "admin-users":
+            if (!isAdmin) return;
+            pageToRender = adminUsersPage;
+            title = "Gerenciar Usuários";
+            fetchUsers();
+            break;
+          case "admin-completed":
+            if (!isAdmin) return;
+            pageToRender = adminCompletedPage;
+            title = "Histórico de Consultas (Admin)";
+            fetchAdminAppointments("concluída", adminCompletedList);
+            break;
+          case "admin-canceled":
+            if (!isAdmin) return;
+            pageToRender = adminCanceledPage;
+            title = "Consultas Canceladas (Admin)";
+            fetchAdminAppointments(
+              ["cancelada", "desistência"],
+              adminCanceledList
+            );
+            break;
+          case "admin-relatorios":
+            if (!isAdmin) return;
+            pageToRender = adminRelatoriosPage;
+            title = "Relatórios";
+            const currentMonth = new Date().getMonth() + 1;
+            const currentYear = new Date().getFullYear();
+            relatorioMes.value = currentMonth;
+            relatorioAno.value = currentYear;
+            break;
+          case "admin-triage":
+            if (!isAdmin) return;
+            pageToRender = adminTriagePage;
+            title = "Triagens Pendentes";
+            carregarTriagensPendentes();
+            break;
+
+          default:
+            pageToRender = homePage;
+            title = "Início";
+        }
+        if (pageToRender) pageToRender.classList.remove("hidden");
+        if (pageTitle) pageTitle.textContent = title;
+      }
+
+      // Appointment logic
+      function fetchAppointments(status, listElement) {
+        if (!currentUserId) return;
+        listElement.innerHTML = `<p class="text-gray-500">Carregando suas consultas...</p>`;
+
+        const q = query(
+          collection(db, `artifacts/${appId}/users/${currentUserId}/consultas`),
+          where("status", "==", status)
+        );
+        onSnapshot(q, (querySnapshot) => {
+          listElement.innerHTML = "";
+          if (querySnapshot.empty) {
+            listElement.innerHTML = `<p class="text-gray-500">Você não tem consultas ${
+              status === "agendada" ? "agendadas." : "concluídas."
+            }</p>`;
+          }
+          querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const card = document.createElement("div");
+            card.className =
+              "bg-white p-4 rounded-xl shadow-card flex justify-between items-center";
+
+            const appointmentName = data.tipo
+              ? `${data.especialidade} (${data.tipo})`
+              : data.especialidade;
+
+            card.innerHTML = `
+  <div>
+    <p class="font-bold text-lg">${appointmentName} - ${data.divisao}</p>
+    <p class="text-gray-600">Profissional: ${data.profissional}</p>
+    <p class="text-sm text-gray-500">Data: ${data.data} - Horário: ${
+              data.horario
+            }</p>
+  </div>
+  <div class="flex space-x-2">
+    ${
+      status === "agendada"
+        ? `
+        <button 
+          class="btn-primary text-sm px-3 py-1 reschedule-btn" 
+          data-id="${docSnap.id}" 
+          data-date="${data.data}" 
+          data-professional="${data.profissional}" 
+          data-hour="${data.horario}">
+          Remarcar
+        </button>
+        <button 
+          class="btn-danger text-sm px-3 py-1 cancel-btn" 
+          data-id="${docSnap.id}" 
+          data-date="${data.data}" 
+          data-professional="${data.profissional}" 
+          data-hour="${data.horario}">
+          Cancelar
+        </button>
+      `
+        : ""
+    }
+  </div>
+`;
+
+            listElement.appendChild(card);
+          });
+
+          // Botão REMARCAR
+          document.querySelectorAll(".reschedule-btn").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+              const id = e.target.getAttribute("data-id");
+              const date = e.target.getAttribute("data-date");
+              const professional = e.target.getAttribute("data-professional");
+              const hour = e.target.getAttribute("data-hour");
+
+              showModal(
+                "Remarcar Consulta",
+                "Deseja remarcar esta consulta? Você será redirecionado para a página de agendamento.",
+                async () => {
+                  try {
+                    // 1. Apaga consulta do usuário
+                    console.log("Remarcar →", { id, date, professional, hour });
+                    await deleteDoc(
+                      doc(
+                        db,
+                        `artifacts/${appId}/users/${currentUserId}/consultas`,
+                        id
+                      )
+                    );
+
+                    // 2. Libera horário antigo
+                    if (date && professional && hour) {
+                      const bookedDocRef = doc(
+                        db,
+                        `artifacts/${appId}/public/data/agendamentos`,
+                        `${date}-${professional}-${hour}`
+                      );
+                      await deleteDoc(bookedDocRef);
+                    }
+
+                    // 3. Só depois redireciona
+                    showToast(
+                      "Consulta cancelada. Por favor, agende uma nova.",
+                      "info"
+                    );
+                    renderPage("agendamento");
+                  } catch (err) {
+                    console.error("Erro ao remarcar consulta:", err);
+                    showToast("Erro ao remarcar a consulta.", "error");
+                  }
+                }
+              );
+            });
+          });
+
+          // Botão CANCELAR
+          document.querySelectorAll(".cancel-btn").forEach((btn) => {
+            btn.addEventListener("click", async (e) => {
+              const id = e.target.getAttribute("data-id");
+              const date = e.target.getAttribute("data-date");
+              const professional = e.target.getAttribute("data-professional");
+              const hour = e.target.getAttribute("data-hour");
+
+              showModal(
+                "Confirmar Cancelamento",
+                "Tem certeza que deseja cancelar esta consulta?",
+                async () => {
+                  try {
+                    // 1. Atualiza status da consulta
+                    await updateDoc(
+                      doc(
+                        db,
+                        `artifacts/${appId}/users/${currentUserId}/consultas`,
+                        id
+                      ),
+                      { status: "cancelada", updatedAt: Date.now() }
+                    );
+
+                    // 2. Libera horário no public/agendamentos
+                    const bookedDocRef = doc(
+                      db,
+                      `artifacts/${appId}/public/data/agendamentos`,
+                      `${date}-${professional}-${hour}`
+                    );
+                    await deleteDoc(bookedDocRef);
+
+                    // 3. Feedback
+                    showToast("Consulta cancelada com sucesso!", "success");
+                  } catch (err) {
+                    console.error("Erro ao cancelar consulta:", err);
+                    showToast("Erro ao cancelar a consulta.", "error");
+                  }
+                }
+              );
+            });
+          });
+        });
+      }
+
+      onSnapshot(
+        doc(
+          db,
+          `artifacts/${appId}/public/data/policlinica-admin`,
+          "especialidades"
+        ),
+        (docSnap) => {
+          specialtiesAdminList.innerHTML = "";
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+
+            // Corrigido para minúsculas, igual no Firestore
+            allSpecialties.divsa = data.divsa || [];
+            allSpecialties.divmeso = data.divmeso || [];
+
+            const combinedList = [
+              ...allSpecialties.divsa.map((s) => ({
+                name: s,
+                divisao: "DIVSA",
+              })),
+              ...allSpecialties.divmeso.map((s) => ({
+                name: s,
+                divisao: "DIVMESO",
+              })),
+            ];
+
+            combinedList.forEach((spec) => {
+              const item = document.createElement("div");
+              item.className =
+                "flex justify-between items-center p-2 bg-gray-50 rounded-lg";
+              item.innerHTML = `<span>${spec.name} (${spec.divisao})</span>`;
+              const deleteBtn = document.createElement("button");
+              deleteBtn.className = "btn-danger px-2 py-1 text-sm";
+              deleteBtn.textContent = "Excluir";
+              deleteBtn.onclick = () =>
+                deleteSpecialty(spec.name, spec.divisao);
+              item.appendChild(deleteBtn);
+              specialtiesAdminList.appendChild(item);
+            });
+
+            professionalSpecialtySelect.innerHTML =
+              '<option value="">Selecione a Especialidade</option>';
+            combinedList.forEach((spec) => {
+              const option = document.createElement("option");
+              option.value = spec.name;
+              option.textContent = spec.name;
+              professionalSpecialtySelect.appendChild(option);
+            });
+
+            console.log("Especialidades carregadas:", allSpecialties);
+          }
+        }
+      );
+
+      // Listener de profissionais (salvos em artifacts/{appId}/public/data/policlinica-admin/profissionais)
+      onSnapshot(
+        doc(
+          db,
+          `artifacts/${appId}/public/data/policlinica-admin`,
+          "profissionais"
+        ),
+        (docSnap) => {
+          professionalsAdminList.innerHTML = "";
+          if (docSnap.exists()) {
+            allProfessionals = docSnap.data().list || [];
+            allProfessionals.forEach((prof) => {
+              const item = document.createElement("div");
+              item.className =
+                "flex justify-between items-center p-2 bg-gray-50 rounded-lg";
+              item.innerHTML = `<span>${prof.nome} (${prof.especialidade})</span>`;
+
+              const actionsDiv = document.createElement("div");
+              const editBtn = document.createElement("button");
+              editBtn.className = "btn-secondary px-2 py-1 text-sm mr-2";
+              editBtn.textContent = "Editar";
+              editBtn.onclick = () => editProfessional(prof);
+
+              const deleteBtn = document.createElement("button");
+              deleteBtn.className = "btn-danger px-2 py-1 text-sm";
+              deleteBtn.textContent = "Excluir";
+              deleteBtn.onclick = () => deleteProfessional(prof.nome);
+
+              actionsDiv.appendChild(editBtn);
+              actionsDiv.appendChild(deleteBtn);
+              item.appendChild(actionsDiv);
+              professionalsAdminList.appendChild(item);
+            });
+          }
+        }
+      );
+
+      // Listener to fetch all appointments for the admin view
+      // Note: This requires the Firestore rules to be updated to allow the admin to read all 'consultas' collections
+      const q = query(
+        collectionGroup(db, "consultas"),
+        where("status", "==", "agendada")
+      );
+      onSnapshot(q, async (querySnapshot) => {
+        allAppointmentsList.innerHTML = "";
+        if (querySnapshot.empty) {
+          allAppointmentsList.innerHTML =
+            '<p class="text-gray-500">Nenhuma consulta agendada.</p>';
+        } else {
+          const appointments = [];
+          for (const docSnapshot of querySnapshot.docs) {
+            const data = docSnapshot.data();
+            const patientId = data.pacienteId;
+            let patientName = "Desconhecido";
+
+            // Try to get patient name from the 'pacientes' collection
+            const patientDocRef = doc(
+              db,
+              `artifacts/${appId}/users/${patientId}/pacientes`,
+              patientId
+            );
+            const patientDocSnap = await getDoc(patientDocRef);
+            if (patientDocSnap.exists()) {
+              patientName = patientDocSnap.data().nome;
+            }
+
+            appointments.push({
+              ...data,
+              pacienteNome: patientName,
+              docId: docSnapshot.id,
+              pacienteId: patientId,
+            });
+          }
+
+          appointments.forEach((appt) => {
+            const item = document.createElement("div");
+            item.className =
+              "bg-gray-100 p-3 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center";
+            const appointmentName = appt.tipo
+              ? `${appt.especialidade} (${appt.tipo})`
+              : appt.especialidade;
+            item.innerHTML = `
+  <div>
+    <p class="font-bold">${appt.pacienteNome}</p>
+    <p class="text-sm text-gray-700">${appointmentName} - ${appt.divisao}</p>
+    <p class="text-xs text-gray-500">Data: ${appt.data} - Horário: ${appt.horario}</p>
+  </div>
+  <div class="flex space-x-2 mt-2 sm:mt-0">
+    <button 
+      class="btn-secondary text-sm px-3 py-1 edit-appointment-btn" 
+      data-doc-id="${appt.docId}" 
+      data-paciente-id="${appt.pacienteId}" 
+      data-divisao="${appt.divisao}" 
+      data-especialidade="${appt.especialidade}" 
+      data-professional="${appt.profissional}" 
+      data-data="${appt.data}" 
+      data-horario="${appt.horario}" 
+      data-tipo="${appt.tipo}">
+      Editar
+    </button>
+    <button 
+      class="btn-success text-sm px-3 py-1 complete-appointment-btn" 
+      data-doc-id="${appt.docId}" 
+      data-paciente-id="${appt.pacienteId}" 
+      data-date="${appt.data}" 
+      data-professional="${appt.profissional}" 
+      data-hour="${appt.horario}" 
+      data-tipo="${appt.tipo}" 
+      data-especialidade="${appt.especialidade}">
+      Concluir
+    </button>
+    <button 
+      class="btn-secondary text-sm px-3 py-1 no-show-appointment-btn" 
+      data-doc-id="${appt.docId}" 
+      data-paciente-id="${appt.pacienteId}" 
+      data-date="${appt.data}" 
+      data-professional="${appt.profissional}" 
+      data-hour="${appt.horario}" 
+      data-tipo="${appt.tipo}" 
+      data-especialidade="${appt.especialidade}">
+      Desistência
+    </button>
+    <button 
+      class="btn-danger text-sm px-3 py-1 cancel-appointment-btn" 
+      data-doc-id="${appt.docId}" 
+      data-paciente-id="${appt.pacienteId}" 
+      data-date="${appt.data}" 
+      data-professional="${appt.profissional}" 
+      data-hour="${appt.horario}" 
+      data-tipo="${appt.tipo}" 
+      data-especialidade="${appt.especialidade}">
+      Cancelar
+    </button>
+  </div>
+`;
+
+            allAppointmentsList.appendChild(item);
+          });
+
+          document
+            .querySelectorAll(".cancel-appointment-btn")
+            .forEach((btn) => {
+              btn.addEventListener("click", async (e) => {
+                const docId = e.target.getAttribute("data-doc-id");
+                const pacienteId = e.target.getAttribute("data-paciente-id");
+                const date = e.target.getAttribute("data-date");
+                const professional = e.target.getAttribute("data-professional");
+                const hour = e.target.getAttribute("data-hour");
+                const tipo = e.target.getAttribute("data-tipo");
+                const especialidade =
+                  e.target.getAttribute("data-especialidade"); // 🔹 adicionado
+
+                showModal(
+                  "Confirmar Cancelamento",
+                  "Tem certeza que deseja cancelar esta consulta?",
+                  async () => {
+                    try {
+                      // 1. Atualiza status no documento da consulta
+                      await updateDoc(
+                        doc(
+                          db,
+                          `artifacts/${appId}/users/${pacienteId}/consultas`,
+                          docId
+                        ),
+                        { status: "cancelada", updatedAt: Date.now() }
+                      );
+
+                      // 2. Remove bloqueio, exceto treino musculação e Funcional
+                      if (tipo !== "treino" && especialidade !== "Funcional") {
+                        const bookedDocRef = doc(
+                          db,
+                          `artifacts/${appId}/public/data/agendamentos`,
+                          `${date}-${professional}-${hour}`
+                        );
+                        await deleteDoc(bookedDocRef);
+                      }
+
+                      // 3. Feedback
+                      showToast("Consulta cancelada com sucesso!", "success");
+                    } catch (err) {
+                      console.error("Erro ao cancelar consulta (admin):", err);
+                      showToast("Erro ao cancelar consulta.", "error");
+                    }
+                  }
+                );
+              });
+            });
+
+          document
+            .querySelectorAll(".no-show-appointment-btn")
+            .forEach((btn) => {
+              btn.addEventListener("click", async (e) => {
+                const docId = e.target.getAttribute("data-doc-id");
+                const pacienteId = e.target.getAttribute("data-paciente-id");
+                const date = e.target.getAttribute("data-date");
+                const professional = e.target.getAttribute("data-professional");
+                const hour = e.target.getAttribute("data-hour");
+                const tipo = e.target.getAttribute("data-tipo");
+                const especialidade =
+                  e.target.getAttribute("data-especialidade"); // 🔹 adicionado
+
+                showModal(
+                  "Confirmar Desistência",
+                  "Tem certeza que deseja marcar esta consulta como desistência?",
+                  async () => {
+                    try {
+                      // 1. Atualiza status
+                      await updateDoc(
+                        doc(
+                          db,
+                          `artifacts/${appId}/users/${pacienteId}/consultas`,
+                          docId
+                        ),
+                        { status: "desistencia", updatedAt: Date.now() }
+                      );
+
+                      // 2. Remove bloqueio (exceto treino musculação e Funcional)
+                      if (tipo !== "treino" && especialidade !== "Funcional") {
+                        const bookedDocRef = doc(
+                          db,
+                          `artifacts/${appId}/public/data/agendamentos`,
+                          `${date}-${professional}-${hour}`
+                        );
+                        await deleteDoc(bookedDocRef);
+                      }
+
+                      // 3. Feedback
+                      showToast(
+                        "Consulta marcada como desistência e horário liberado!",
+                        "success"
+                      );
+                    } catch (err) {
+                      console.error("Erro ao registrar desistência:", err);
+                      showToast("Erro ao registrar desistência.", "error");
+                    }
+                  }
+                );
+              });
+            });
+
+          document
+            .querySelectorAll(".complete-appointment-btn")
+            .forEach((btn) => {
+              btn.addEventListener("click", async (e) => {
+                const docId = e.target.getAttribute("data-doc-id");
+                const pacienteId = e.target.getAttribute("data-paciente-id");
+                const date = e.target.getAttribute("data-date");
+                const professional = e.target.getAttribute("data-professional");
+                const hour = e.target.getAttribute("data-hour");
+                const tipo = e.target.getAttribute("data-tipo");
+                const especialidade =
+                  e.target.getAttribute("data-especialidade"); // 🔹 adicionado
+
+                showModal(
+                  "Concluir Consulta",
+                  "Tem certeza que deseja marcar esta consulta como concluída?",
+                  async () => {
+                    try {
+                      // 1. Atualiza status da consulta
+                      await updateDoc(
+                        doc(
+                          db,
+                          `artifacts/${appId}/users/${pacienteId}/consultas`,
+                          docId
+                        ),
+                        { status: "concluida", updatedAt: Date.now() }
+                      );
+
+                      // 2. Remove bloqueio, exceto treino musculação e Funcional
+                      if (tipo !== "treino" && especialidade !== "Funcional") {
+                        const bookedDocRef = doc(
+                          db,
+                          `artifacts/${appId}/public/data/agendamentos`,
+                          `${date}-${professional}-${hour}`
+                        );
+                        await deleteDoc(bookedDocRef);
+                      }
+
+                      // 3. Marca avaliação física de musculação como concluída
+                      if (
+                        especialidade === "Musculação" &&
+                        tipo === "avaliacao"
+                      ) {
+                        await updateDoc(
+                          doc(
+                            db,
+                            `artifacts/${appId}/users/${pacienteId}/pacientes`,
+                            pacienteId
+                          ),
+                          { avaliacaoMusculacaoConcluida: true }
+                        );
+                      }
+
+                      // 4. Feedback
+                      showToast("Consulta concluída e arquivada!", "success");
+                    } catch (err) {
+                      console.error("Erro ao concluir consulta:", err);
+                      showToast("Erro ao concluir consulta.", "error");
+                    }
+                  }
+                );
+              });
+            });
+
+          document.querySelectorAll(".edit-appointment-btn").forEach((btn) => {
+            btn.addEventListener("click", async (e) => {
+              const docId = e.target.getAttribute("data-doc-id");
+              const pacienteId = e.target.getAttribute("data-paciente-id");
+              const currentDivisao = e.target.getAttribute("data-divisao");
+              const currentEspecialidade =
+                e.target.getAttribute("data-especialidade");
+              const currentProfissional =
+                e.target.getAttribute("data-profissional");
+              const currentData = e.target.getAttribute("data-data");
+              const currentHorario = e.target.getAttribute("data-horario");
+              const currentTipo =
+                e.target.getAttribute("data-tipo") || "consulta";
+              const bookedDocId = `${currentData}-${currentProfissional}-${currentHorario}`;
+
+              showModal(
+                "Editar Consulta",
+                "Modifique os detalhes da consulta abaixo:",
+                async () => {
+                  const newEspecialidade = modalContent.querySelector(
+                    "#modal-specialty-select"
+                  ).value;
+                  const newProfissional = modalContent.querySelector(
+                    "#modal-professional-select"
+                  ).value;
+                  const newData =
+                    modalContent.querySelector("#modal-date-input").value;
+                  const newHorario =
+                    modalContent.querySelector("#modal-hour-input").value;
+
+                  try {
+                    await updateDoc(
+                      doc(
+                        db,
+                        `artifacts/${appId}/users/${pacienteId}/consultas`,
+                        docId
+                      ),
+                      {
+                        especialidade: newEspecialidade,
+                        profissional: newProfissional,
+                        data: newData,
+                        horario: newHorario,
+                      }
+                    );
+                    if (
+                      currentTipo !== "treino" &&
+                      newEspecialidade !== "Funcional"
+                    ) {
+                      const newBookedDocId = `${newData}-${newProfissional}-${newHorario}`;
+                      if (bookedDocId !== newBookedDocId) {
+                        await deleteDoc(
+                          doc(
+                            db,
+                            `artifacts/${appId}/public/data/agendamentos`,
+                            bookedDocId
+                          )
+                        );
+                        await setDoc(
+                          doc(
+                            db,
+                            `artifacts/${appId}/public/data/agendamentos`,
+                            newBookedDocId
+                          ),
+                          {
+                            data: newData,
+                            horario: newHorario,
+                            profissional: newProfissional,
+                          }
+                        );
+                      }
+                    }
+                    showToast("Consulta atualizada com sucesso!", "success");
+                  } catch (e) {
+                    console.error("Erro ao atualizar a consulta:", e);
+                    showToast("Erro ao atualizar a consulta.", "error");
+                  } finally {
+                    modalContainer.classList.add("hidden");
+                  }
+                }
+              );
+
+              const divisaoOptions =
+                allSpecialties.DIVSA.length > 0
+                  ? `<option value="DIVSA">Divisão de Saúde - DIVSA</option>`
+                  : "";
+              const mesoOptions =
+                allSpecialties.DIVMESO.length > 0
+                  ? `<option value="DIVMESO">Divisão de Médicos e Saúde Ocupacional - DIVMESO</option>`
+                  : "";
+              const specialtyOptions = allSpecialties[currentDivisao]
+                .map(
+                  (s) =>
+                    `<option value="${s}" ${
+                      s === currentEspecialidade ? "selected" : ""
+                    }>${s}</option>`
+                )
+                .join("");
+              const professionalOptions = allProfessionals
+                .filter((p) => p.especialidade === currentEspecialidade)
+                .map(
+                  (p) =>
+                    `<option value="${p.nome}" ${
+                      p.nome === currentProfissional ? "selected" : ""
+                    }>${p.nome}</option>`
+                )
+                .join("");
+              const professional = allProfessionals.find(
+                (p) => p.nome === currentProfissional
+              );
+              const dayKey = ["dom", "seg", "ter", "qua", "qui", "sex", "sab"][
+                new Date(currentData).getDay()
+              ];
+
+              let hourOptions;
+              if (currentEspecialidade === "Musculação") {
+                const hoursKey =
+                  currentTipo === "treino" ? "treino" : "avaliacao";
+                const allHours =
+                  professional?.horarios[hoursKey]?.[dayKey] || [];
+                const bookedHours =
+                  currentTipo === "avaliacao"
+                    ? await getBookedHours(
+                        currentData,
+                        currentProfissional,
+                        "avaliacao"
+                      )
+                    : [];
+                const filteredHours = allHours.filter(
+                  (h) => !bookedHours.includes(h)
+                );
+                hourOptions = filteredHours
+                  .map(
+                    (h) =>
+                      `<option value="${h}" ${
+                        h === currentHorario ? "selected" : ""
+                      }>${h}</option>`
+                  )
+                  .join("");
+              } else {
+                const availableHours = professional?.horarios[dayKey] || [];
+                const bookedHours = await getBookedHours(
+                  currentData,
+                  currentProfissional,
+                  "avaliacao"
+                );
+                const filteredHours = availableHours.filter(
+                  (h) => !bookedHours.includes(h)
+                );
+                hourOptions = filteredHours
+                  .map(
+                    (h) =>
+                      `<option value="${h}" ${
+                        h === currentHorario ? "selected" : ""
+                      }>${h}</option>`
+                  )
+                  .join("");
+              }
+
+              modalContent.innerHTML = `
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium">Divisão</label>
+                                        <select id="modal-divisao-select" class="rounded-lg" disabled>
+                                            <option value="${currentDivisao}">${currentDivisao}</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium">Especialidade</label>
+                                        <select id="modal-specialty-select" class="rounded-lg">${specialtyOptions}</select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium">Profissional</label>
+                                        <select id="modal-professional-select" class="rounded-lg">${professionalOptions}</select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium">Data</label>
+                                        <input type="date" id="modal-date-input" class="rounded-lg" value="${currentData}">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium">Horário</label>
+                                        <select id="modal-hour-input" class="rounded-lg">${hourOptions}</select>
+                                    </div>
+                                </div>
+                            `;
+
+              const modalDivisaoSelect = modalContent.querySelector(
+                "#modal-divisao-select"
+              );
+              const modalSpecialtySelect = modalContent.querySelector(
+                "#modal-specialty-select"
+              );
+              const modalProfessionalSelect = modalContent.querySelector(
+                "#modal-professional-select"
+              );
+              const modalDateInput =
+                modalContent.querySelector("#modal-date-input");
+              const modalHourInput =
+                modalContent.querySelector("#modal-hour-input");
+
+              const updateProfessionalAndHourOptions = async () => {
+                const newEspecialidade = modalSpecialtySelect.value;
+                const newProfessionalOptions = allProfessionals
+                  .filter((p) => p.especialidade === newEspecialidade)
+                  .map((p) => `<option value="${p.nome}">${p.nome}</option>`)
+                  .join("");
+                modalProfessionalSelect.innerHTML = newProfessionalOptions;
+
+                const newDate = modalDateInput.value;
+                const newProfessional = modalProfessionalSelect.value;
+                const professional = allProfessionals.find(
+                  (p) => p.nome === newProfessional
+                );
+                const dayKey = [
+                  "dom",
+                  "seg",
+                  "ter",
+                  "qua",
+                  "qui",
+                  "sex",
+                  "sab",
+                ][new Date(newDate).getDay()];
+
+                let hoursList = [];
+                if (newEspecialidade === "Musculação") {
+                  const hoursKey =
+                    currentTipo === "treino" ? "treino" : "avaliacao";
+                  hoursList =
+                    professional?.horarios?.[hoursKey]?.[dayKey] || [];
+                  if (currentTipo === "avaliacao") {
+                    const bookedHours = await getBookedHours(
+                      newDate,
+                      newProfessional,
+                      "avaliacao"
+                    );
+                    hoursList = hoursList.filter(
+                      (h) => !bookedHours.includes(h)
+                    );
+                  }
+                } else {
+                  hoursList = professional?.horarios?.[dayKey] || [];
+                  const bookedHours = await getBookedHours(
+                    newDate,
+                    newProfessional,
+                    "avaliacao"
+                  );
+                  hoursList = hoursList.filter((h) => !bookedHours.includes(h));
+                }
+
+                const newHourOptions = hoursList
+                  .map((h) => `<option value="${h}">${h}</option>`)
+                  .join("");
+                modalHourInput.innerHTML = newHourOptions;
+              };
+
+              modalDivisaoSelect.addEventListener("change", () => {
+                const newDivisao = modalDivisaoSelect.value;
+                const newSpecialtyOptions = allSpecialties[newDivisao]
+                  .map((s) => `<option value="${s}">${s}</option>`)
+                  .join("");
+                modalSpecialtySelect.innerHTML = newSpecialtyOptions;
+                updateProfessionalAndHourOptions();
+              });
+              modalSpecialtySelect.addEventListener(
+                "change",
+                updateProfessionalAndHourOptions
+              );
+              modalProfessionalSelect.addEventListener(
+                "change",
+                updateProfessionalAndHourOptions
+              );
+              modalDateInput.addEventListener(
+                "change",
+                updateProfessionalAndHourOptions
+              );
+            });
+          });
+        }
+      });
+
+      function fetchAdminAppointments(status, listElement) {
+        listElement.innerHTML =
+          '<p class="text-gray-500">Carregando consultas...</p>';
+        let q;
+        if (Array.isArray(status)) {
+          q = query(
+            collectionGroup(db, "consultas"),
+            where("status", "in", status)
+          );
+        } else {
+          q = query(
+            collectionGroup(db, "consultas"),
+            where("status", "==", status)
+          );
+        }
+
+        onSnapshot(q, async (querySnapshot) => {
+          listElement.innerHTML = "";
+          if (querySnapshot.empty) {
+            listElement.innerHTML =
+              '<p class="text-gray-500">Nenhuma consulta encontrada.</p>';
+          } else {
+            const appointments = [];
+            for (const docSnapshot of querySnapshot.docs) {
+              const data = docSnapshot.data();
+              const patientId = data.pacienteId;
+              let patientName = "Desconhecido";
+
+              const patientDocRef = doc(
+                db,
+                `artifacts/${appId}/users/${patientId}/pacientes`,
+                patientId
+              );
+              const patientDocSnap = await getDoc(patientDocRef);
+              if (patientDocSnap.exists()) {
+                patientName = patientDocSnap.data().nome;
+              }
+
+              appointments.push({
+                ...data,
+                pacienteNome: patientName,
+                docId: docSnapshot.id,
+                pacienteId: patientId,
+              });
+            }
+
+            appointments.forEach((appt) => {
+              const item = document.createElement("div");
+              item.className =
+                "bg-gray-100 p-3 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center";
+              const appointmentName = appt.tipo
+                ? `${appt.especialidade} (${appt.tipo})`
+                : appt.especialidade;
+              item.innerHTML = `
+                            <div>
+                                <p class="font-bold">${appt.pacienteNome}</p>
+                                <p class="text-sm text-gray-700">${appointmentName} - ${appt.divisao}</p>
+                                <p class="text-xs text-gray-500">Data: ${appt.data} - Horário: ${appt.horario}</p>
+                                <p class="text-xs font-bold mt-1">Status: ${appt.status}</p>
+                            </div>
+                        `;
+              listElement.appendChild(item);
+            });
+          }
+        });
+      }
+
+      async function addSpecialty(name, divisao) {
+        try {
+          const docRef = doc(
+            db,
+            `artifacts/${appId}/public/data/policlinica-admin`,
+            "especialidades"
+          );
+          const docSnap = await getDoc(docRef);
+          const data = docSnap.exists()
+            ? docSnap.data()
+            : { divsa: [], divmeso: [] };
+          if (!data[divisao.toLowerCase()].includes(name)) {
+            // Convert to lowercase for key
+            data[divisao.toLowerCase()].push(name);
+            await setDoc(docRef, data);
+            showToast("Especialidade adicionada com sucesso!", "success");
+            newSpecialtyNameInput.value = "";
+          } else {
+            showToast("Esta especialidade já existe.", "error");
+          }
+        } catch (e) {
+          console.error("Erro ao adicionar especialidade:", e);
+          showToast("Erro ao adicionar especialidade.", "error");
+        }
+      }
+
+      async function deleteSpecialty(name, divisao) {
+        showModal(
+          "Excluir Especialidade",
+          `Tem certeza que deseja excluir a especialidade de ${name}?`,
+          async () => {
+            try {
+              const docRef = doc(
+                db,
+                `artifacts/${appId}/public/data/policlinica-admin`,
+                "especialidades"
+              );
+              const docSnap = await getDoc(docRef);
+              const data = docSnap.data();
+              data[divisao.toLowerCase()] = data[divisao.toLowerCase()].filter(
+                (s) => s !== name
+              );
+              await setDoc(docRef, data);
+              showToast("Especialidade excluída com sucesso!", "success");
+            } catch (e) {
+              console.error("Erro ao excluir especialidade:", e);
+              showToast("Erro ao excluir especialidade.", "error");
+            }
+          }
+        );
+      }
+
+      async function addProfessional(name, specialty) {
+        try {
+          const docRef = doc(
+            db,
+            `artifacts/${appId}/public/data/policlinica-admin`,
+            "profissionais"
+          );
+          const docSnap = await getDoc(docRef);
+          const data = docSnap.exists() ? docSnap.data() : { list: [] };
+          const existingProf = data.list.find((p) => p.nome === name);
+          if (!existingProf) {
+            const initialHours =
+              specialty === "Musculação" ? { avaliacao: {}, treino: {} } : {};
+            const newProf = {
+              nome: name,
+              especialidade: specialty,
+              horarios: initialHours,
+            };
+            data.list.push(newProf);
+            await setDoc(docRef, data);
+            showToast("Profissional adicionado com sucesso!", "success");
+            newProfessionalNameInput.value = "";
+            professionalSpecialtySelect.value = "";
+          } else {
+            showToast("Este profissional já está cadastrado.", "error");
+          }
+        } catch (e) {
+          console.error("Erro ao adicionar profissional:", e);
+          showToast("Erro ao adicionar profissional.", "error");
+        }
+      }
+
+      async function deleteProfessional(name) {
+        showModal(
+          "Excluir Profissional",
+          `Tem certeza que deseja excluir o profissional ${name}?`,
+          async () => {
+            try {
+              const docRef = doc(
+                db,
+                `artifacts/${appId}/public/data/policlinica-admin`,
+                "profissionais"
+              );
+              const docSnap = await getDoc(docRef);
+              const data = docSnap.data();
+              data.list = data.list.filter((p) => p.nome !== name);
+              await setDoc(docRef, data);
+              showToast("Profissional excluído com sucesso!", "success");
+            } catch (e) {
+              console.error("Erro ao excluir profissional.", e);
+              showToast("Erro ao excluir profissional.", "error");
+            }
+          }
+        );
+      }
+
+      function editProfessional(professional) {
+        modalTitle.textContent = `Editar Horários de ${professional.nome}`;
+        modalMessage.textContent =
+          "Adicione ou remova horários separados por vírgula para cada dia.";
+        const weekdayNames = ["dom", "seg", "ter", "qua", "qui", "sex", "sab"];
+
+        let horariosContainerHtml = "";
+
+        if (professional.especialidade === "Musculação") {
+          horariosContainerHtml = `
+                    <div>
+                        <h5 class="font-semibold text-sm mb-2">Horários de Avaliação Física</h5>
+                        <div id="avaliacao-hours-container" class="space-y-2"></div>
+                    </div>
+                    <div>
+                        <h5 class="font-semibold text-sm mb-2">Horários de Treino</h5>
+                        <div id="treino-hours-container" class="space-y-2"></div>
+                    </div>
+                `;
+        } else {
+          horariosContainerHtml = `
+                    <div id="geral-hours-container" class="space-y-2"></div>
+                `;
+        }
+
+        modalContent.innerHTML = `<div class="space-y-4">${horariosContainerHtml}</div>`;
+
+        const renderHoursInputs = (containerId, hoursObject) => {
+          const container = modalContent.querySelector(`#${containerId}`);
+          container.innerHTML = "";
+          weekdayNames.forEach((day) => {
+            const hours = (hoursObject[day] || []).join(", ");
+            container.innerHTML += `
+                        <div>
+                            <label for="edit-${containerId}-${day}" class="block text-sm font-medium mb-1">${
+              day.charAt(0).toUpperCase() + day.slice(1)
+            }</label>
+                            <input type="text" id="edit-${containerId}-${day}" class="w-full" value="${hours}">
+                        </div>
+                    `;
+          });
+        };
+
+        if (professional.especialidade === "Musculação") {
+          renderHoursInputs(
+            "avaliacao-hours-container",
+            professional.horarios.avaliacao || {}
+          );
+          renderHoursInputs(
+            "treino-hours-container",
+            professional.horarios.treino || {}
+          );
+        } else {
+          renderHoursInputs(
+            "geral-hours-container",
+            professional.horarios || {}
+          );
+        }
+
+        modalContainer.classList.remove("hidden");
+        modalConfirmBtn.classList.remove("hidden");
+        modalCancelBtn.classList.remove("hidden");
+        modalActions.classList.remove("hidden");
+
+        document.getElementById("modal-confirm-btn").onclick = async () => {
+          const newHours = {};
+          if (professional.especialidade === "Musculação") {
+            newHours.avaliacao = {};
+            newHours.treino = {};
+            weekdayNames.forEach((day) => {
+              const avaliacaoHoursString = document.getElementById(
+                `edit-avaliacao-hours-container-${day}`
+              ).value;
+              newHours.avaliacao[day] = avaliacaoHoursString
+                .split(",")
+                .map((h) => h.trim())
+                .filter((h) => h);
+              const treinoHoursString = document.getElementById(
+                `edit-treino-hours-container-${day}`
+              ).value;
+              newHours.treino[day] = treinoHoursString
+                .split(",")
+                .map((h) => h.trim())
+                .filter((h) => h);
+            });
+          } else {
+            weekdayNames.forEach((day) => {
+              const hoursString = document.getElementById(
+                `edit-geral-hours-container-${day}`
+              ).value;
+              newHours[day] = hoursString
+                .split(",")
+                .map((h) => h.trim())
+                .filter((h) => h);
+            });
+          }
+
+          try {
+            const docRef = doc(
+              db,
+              `artifacts/${appId}/public/data/policlinica-admin`,
+              "profissionais"
+            );
+            const docSnap = await getDoc(docRef);
+            const data = docSnap.exists() ? docSnap.data() : { list: [] };
+            const professionalIndex = data.list.findIndex(
+              (p) => p.nome === professional.nome
+            );
+            if (professionalIndex > -1) {
+              data.list[professionalIndex].horarios = newHours;
+              await setDoc(docRef, data);
+              showToast("Horários atualizados com sucesso!", "success");
+            }
+          } catch (e) {
+            console.error("Erro ao atualizar horários:", e);
+            showToast("Erro ao atualizar horários.", "error");
+          } finally {
+            modalContainer.classList.add("hidden");
+          }
+        };
+
+        document.getElementById("modal-cancel-btn").onclick = () => {
+          modalContainer.classList.add("hidden");
+        };
+      }
+
+      addSpecialtyForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = newSpecialtyNameInput.value.trim();
+        const divisao = newSpecialtyDivisaoSelect.value;
+        if (name && divisao) {
+          addSpecialty(name, divisao);
+        }
+      });
+
+      addProfessionalForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = newProfessionalNameInput.value.trim();
+        const specialty = professionalSpecialtySelect.value;
+        if (name && specialty) {
+          addProfessional(name, specialty);
+        }
+      });
+
+      gerarRelatorioBtn.addEventListener("click", () => {
+        const mes = relatorioMes.value;
+        const ano = relatorioAno.value;
+        generateRelatorioPDF(mes, ano);
+      });
+
+      // User Management
+      async function fetchUsers() {
+        usersList.innerHTML =
+          '<p class="text-gray-500">Carregando usuários...</p>';
+
+        try {
+          // Busca em TODAS as subcoleções "pacientes" no Firestore
+          const q = collectionGroup(db, "pacientes");
+          const snapshot = await getDocs(q);
+
+          usersList.innerHTML = "";
+          if (snapshot.empty) {
+            usersList.innerHTML =
+              '<p class="text-gray-500">Nenhum usuário cadastrado.</p>';
+            return;
+          }
+
+          const users = [];
+
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+
+            users.push({
+              id: docSnap.id, // geralmente o UID do usuário
+              nome: (data.nome || "---").toString().trim(),
+              sobrenome: (data.sobrenome || "").toString().trim(),
+              matricula: (data.matricula || "---").toString().trim(),
+              celular: (data.celular || "---").toString().trim(),
+              email: (data.email || "---").toString().trim(),
+            });
+          });
+
+          // Renderização
+          users.forEach((user) => {
+            if (user.email === "admin@policlinica.com") return; // Oculta admin
+
+            const item = document.createElement("div");
+            item.className =
+              "bg-gray-100 p-3 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center";
+            const userEmail = user.email || "Email não disponível";
+
+            item.innerHTML = `
+        <div>
+          <p class="font-bold">${user.nome} ${user.sobrenome || ""}</p>
+          <p class="text-sm text-gray-700">Matrícula: ${user.matricula}</p>
+          <p class="text-xs text-gray-500">Email: ${userEmail}</p>
+        </div>
+        <div class="flex space-x-2 mt-2 sm:mt-0">
+          <button class="btn-secondary text-sm px-3 py-1 edit-user-btn" data-id="${
+            user.id
+          }">Editar</button>
+          <button class="btn-danger text-sm px-3 py-1 delete-user-btn" data-id="${
+            user.id
+          }">Excluir</button>
+        </div>
+      `;
+            usersList.appendChild(item);
+          });
+
+          // Eventos Editar
+          document.querySelectorAll(".edit-user-btn").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+              const userId = e.target.getAttribute("data-id");
+              const userToEdit = users.find((u) => u.id === userId);
+              if (userToEdit) {
+                showEditUserModal(userToEdit);
+              }
+            });
+          });
+
+          // Eventos Excluir
+          document.querySelectorAll(".delete-user-btn").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+              const userId = e.target.getAttribute("data-id");
+              showModal(
+                "Excluir Usuário",
+                "Tem certeza que deseja excluir este usuário?",
+                () => {
+                  deleteUser(userId);
+                }
+              );
+            });
+          });
+        } catch (err) {
+          console.error("Erro ao carregar usuários:", err);
+          usersList.innerHTML =
+            '<p class="text-red-500">Erro ao carregar usuários.</p>';
+        }
+      }
+
+      function showEditUserModal(user) {
+        modalTitle.textContent = "Editar Usuário";
+        modalMessage.textContent = "";
+        modalContent.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium">Nome Completo</label>
+                        <input type="text" id="edit-user-name" value="${user.nome}">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Sobrenome</label>
+                        <input type="text" id="edit-user-lastname" value="${user.sobrenome}">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Matrícula</label>
+                        <input type="text" id="edit-user-matricula" value="${user.matricula}">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Celular</label>
+                        <input type="tel" id="edit-user-phone" value="${user.celular}">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Data de Nascimento</label>
+                        <input type="date" id="edit-user-dob" value="${user.data_nascimento}">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Nome da Mãe</label>
+                        <input type="text" id="edit-user-mother" value="${user.nome_mae}">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Email</label>
+                        <input type="email" id="edit-user-email" value="${user.email}" disabled>
+                    </div>
+                </div>
+            `;
+        modalContainer.classList.remove("hidden");
+        modalConfirmBtn.classList.remove("hidden");
+        modalCancelBtn.classList.remove("hidden");
+        modalActions.classList.remove("hidden");
+
+        document.getElementById("modal-confirm-btn").onclick = async () => {
+          const updatedData = {
+            nome: document.getElementById("edit-user-name").value,
+            sobrenome: document.getElementById("edit-user-lastname").value,
+            matricula: document.getElementById("edit-user-matricula").value,
+            celular: document.getElementById("edit-user-phone").value,
+            data_nascimento: document.getElementById("edit-user-dob").value,
+            nome_mae: document.getElementById("edit-user-mother").value,
+          };
+          try {
+            await updateDoc(
+              doc(db, `artifacts/${appId}/users/${user.id}/pacientes`, user.id),
+              updatedData
+            );
+            showToast("Dados do usuário atualizados com sucesso!", "success");
+          } catch (e) {
+            console.error("Erro ao atualizar usuário:", e);
+            showToast("Erro ao atualizar usuário.", "error");
+          } finally {
+            modalContainer.classList.add("hidden");
+          }
+        };
+        document.getElementById("modal-cancel-btn").onclick = () => {
+          modalContainer.classList.add("hidden");
+        };
+      }
+
+      async function deleteUser(userId) {
+        try {
+          // Deletar todas as consultas do usuário
+          const consultasRef = collection(
+            db,
+            `artifacts/${appId}/users/${userId}/consultas`
+          );
+          const consultasSnap = await getDocs(consultasRef);
+
+          const batch = writeBatch(db);
+          consultasSnap.forEach((docSnap) => {
+            batch.delete(docSnap.ref);
+          });
+          await batch.commit();
+
+          // Deletar documento do paciente
+          const pacienteRef = doc(
+            db,
+            `artifacts/${appId}/users/${userId}/pacientes`,
+            userId
+          );
+          await deleteDoc(pacienteRef);
+
+          // Deletar o contêiner "user"
+          const userRef = doc(db, `artifacts/${appId}/users`, userId);
+          await deleteDoc(userRef);
+
+          showToast("Usuário excluído com sucesso!", "success");
+        } catch (e) {
+          console.error("Erro ao excluir usuário:", e);
+          showToast("Erro ao excluir usuário.", "error");
+        }
+      }
+
+      // ============ TRIAGENS (ADMIN) ============
+
+      // Helper: busca nome do paciente pelo pacienteId
+      async function getPatientNameById(pacienteId) {
+        try {
+          const ref = doc(
+            db,
+            `artifacts/${appId}/users/${pacienteId}/pacientes`,
+            pacienteId
+          );
+          const snap = await getDoc(ref);
+          if (snap.exists()) {
+            const d = snap.data();
+            return d?.nome
+              ? `${d.nome} ${d?.sobrenome || ""}`.trim()
+              : "Desconhecido";
+          }
+        } catch (e) {
+          console.warn("Falha ao obter nome do paciente", pacienteId, e);
+        }
+        return "Desconhecido";
+      }
+
+      // Lista as triagens pendentes (status=agendada, especialidade=Triagem)
+      function loadTriageList() {
+        const listEl = document.getElementById("admin-triage-list");
+        if (!listEl) return;
+
+        listEl.innerHTML =
+          '<p class="text-gray-500">Carregando triagens...</p>';
+
+        // Observa todas as subcoleções 'consultas' cujo especialidade == 'Triagem' e status == 'agendada'
+        const q = query(
+          collectionGroup(db, "consultas"),
+          where("especialidade", "==", "Triagem"),
+          where("status", "==", "agendada")
+        );
+
+        onSnapshot(
+          q,
+          async (qs) => {
+            listEl.innerHTML = "";
+
+            if (qs.empty) {
+              listEl.innerHTML =
+                '<p class="text-gray-500">Nenhuma triagem pendente.</p>';
+              return;
+            }
+
+            // Monta itens (resolvendo nome do paciente)
+            for (const docSnap of qs.docs) {
+              const tri = docSnap.data();
+              const pacienteId = tri.pacienteId;
+              const pacienteNome = await getPatientNameById(pacienteId);
+
+              const item = document.createElement("div");
+              item.className =
+                "bg-gray-50 p-4 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between gap-3";
+
+              const left = document.createElement("div");
+              left.innerHTML = `
+        <p class="font-semibold">${pacienteNome}</p>
+        <p class="text-sm text-gray-700">Profissional: ${tri.profissional}</p>
+        <p class="text-xs text-gray-500">Data: ${tri.data} • Horário: ${tri.horario}</p>
+        <p class="text-xs text-gray-500">Divisão: ${tri.divisao} • Status: ${tri.status}</p>
+      `;
+
+              const actions = document.createElement("div");
+              actions.className = "flex gap-2";
+
+              // Botão concluir triagem
+              const btnOk = document.createElement("button");
+              btnOk.className = "btn-success text-sm px-3 py-1";
+              btnOk.textContent = "Concluir";
+              btnOk.onclick = () => concludeTriage(docSnap);
+
+              // Botão cancelar triagem
+              const btnCancel = document.createElement("button");
+              btnCancel.className = "btn-danger text-sm px-3 py-1";
+              btnCancel.textContent = "Cancelar";
+              btnCancel.onclick = () => cancelTriage(docSnap);
+
+              actions.appendChild(btnOk);
+              actions.appendChild(btnCancel);
+
+              item.appendChild(left);
+              item.appendChild(actions);
+
+              listEl.appendChild(item);
+            }
+          },
+          (err) => {
+            console.error("Erro ao listar triagens:", err);
+            listEl.innerHTML = `<p class="text-red-600">Erro ao carregar triagens: ${
+              err?.message || err
+            }</p>`;
+          }
+        );
+      }
+
+      // Concluir triagem (status -> concluída, set triageConcluida=true, libera slot)
+      async function concludeTriage(docSnap) {
+        try {
+          const appt = docSnap.data();
+          // 1) marca consulta como concluída
+          await updateDoc(docSnap.ref, { status: "concluída" });
+
+          // 2) libera slot (agendamento) — para triagem não é treino
+          const slotId = `${appt.data}-${appt.profissional}-${appt.horario}`;
+          await deleteDoc(
+            doc(db, `artifacts/${appId}/public/data/agendamentos`, slotId)
+          );
+
+          // 3) seta flag no perfil do paciente
+          const pacienteRef = doc(
+            db,
+            `artifacts/${appId}/users/${appt.pacienteId}/pacientes`,
+            appt.pacienteId
+          );
+          await updateDoc(pacienteRef, { triageConcluida: true });
+
+          showToast("Triagem concluída com sucesso!", "success");
+        } catch (e) {
+          console.error("Erro ao concluir triagem", e);
+          showToast("Erro ao concluir triagem.", "error");
+        }
+      }
+
+      // Cancelar triagem (status -> cancelada, libera slot)
+      async function cancelTriage(docSnap) {
+        try {
+          const appt = docSnap.data();
+
+          // 1) marca consulta como cancelada
+          await updateDoc(docSnap.ref, { status: "cancelada" });
+
+          // 2) libera slot
+          const slotId = `${appt.data}-${appt.profissional}-${appt.horario}`;
+          await deleteDoc(
+            doc(db, `artifacts/${appId}/public/data/agendamentos`, slotId)
+          );
+
+          showToast("Triagem cancelada.", "success");
+        } catch (e) {
+          console.error("Erro ao cancelar triagem", e);
+          showToast("Erro ao cancelar triagem.", "error");
+        }
+      }
+      // ============================
+      // EVENTOS AO CARREGAR A PÁGINA
+      // ============================
+
+      window.addEventListener("DOMContentLoaded", () => {
+        const completeTriageBtn = document.getElementById(
+          "complete-triage-btn"
+        );
+
+        if (completeTriageBtn) {
+          completeTriageBtn.addEventListener("click", async () => {
+            showModal(
+              "Confirmar Triagem",
+              "Você confirma que realizou a triagem com o enfermeiro ou farmacêutico?",
+              async () => {
+                try {
+                  const docRef = doc(
+                    db,
+                    `artifacts/${appId}/users/${currentUserId}/pacientes`,
+                    currentUserId
+                  );
+
+                  await updateDoc(docRef, { triageConcluida: true });
+
+                  showToast(
+                    "Triagem concluída com sucesso! Agora você pode agendar na DIVSA.",
+                    "success"
+                  );
+
+                  triageAlert.classList.add("hidden");
+                  specialtySection.classList.remove("hidden");
+                  await updateEspecialidadesUI();
+                } catch (e) {
+                  showToast("Erro ao concluir triagem.", "error");
+                  console.error(e);
+                }
+              }
+            );
+          });
+        }
+      });
+
+      // Start the application
+      window.onload = () => {
+        showLoading(true); // mostra tela de loading
+
+        // Aqui não forçamos login automático!
+        // Apenas deixamos o onAuthStateChanged cuidar disso.
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            currentUserId = user.uid;
+            isAdmin = user.email === "admin@policlinica.com";
+
+            if (isAdmin) {
+              carregarTriagensPendentes();
+            }
+          } else {
+            currentUserId = null;
+            isAdmin = false;
+          }
+        });
+      };
+    </script>
+  </body>
+</html>
