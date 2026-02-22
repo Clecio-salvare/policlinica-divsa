@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -1002,19 +1002,19 @@
       const homePage = document.getElementById("home-page");
       const agendamentoPage = document.getElementById("agendamento-page");
       const minhasConsultasPage = document.getElementById(
-        "minhas-consultas-page"
+        "minhas-consultas-page",
       );
       const historicoConsultasPage = document.getElementById(
-        "historico-consultas-page"
+        "historico-consultas-page",
       );
       const adminPage = document.getElementById("admin-page");
       const adminUsersPage = document.getElementById("admin-users-page");
       const adminCompletedPage = document.getElementById(
-        "admin-completed-page"
+        "admin-completed-page",
       );
       const adminCanceledPage = document.getElementById("admin-canceled-page");
       const adminRelatoriosPage = document.getElementById(
-        "admin-relatorios-page"
+        "admin-relatorios-page",
       );
       const adminTriagePage = document.getElementById("admin-triage-page");
 
@@ -1028,41 +1028,41 @@
       const specialtySelect = document.getElementById("specialty-select");
       const specialtySection = document.getElementById("specialty-section");
       const professionalsSection = document.getElementById(
-        "professionals-section"
+        "professionals-section",
       );
       const professionalsList = document.getElementById("professionals-list");
       const appointmentsList = document.getElementById("appointments-list");
       const completedAppointmentsList = document.getElementById(
-        "completed-appointments-list"
+        "completed-appointments-list",
       );
       const allAppointmentsList = document.getElementById(
-        "all-appointments-list"
+        "all-appointments-list",
       );
       const adminUserIdText = document.getElementById("admin-user-id");
       const addSpecialtyForm = document.getElementById("add-specialty-form");
       const newSpecialtyNameInput =
         document.getElementById("new-specialty-name");
       const newSpecialtyDivisaoSelect = document.getElementById(
-        "new-specialty-divisao"
+        "new-specialty-divisao",
       );
       const addProfessionalForm = document.getElementById(
-        "add-professional-form"
+        "add-professional-form",
       );
       const newProfessionalNameInput = document.getElementById(
-        "new-professional-name"
+        "new-professional-name",
       );
       const professionalSpecialtySelect = document.getElementById(
-        "professional-specialty"
+        "professional-specialty",
       );
       const specialtiesAdminList = document.getElementById(
-        "specialties-admin-list"
+        "specialties-admin-list",
       );
       const professionalsAdminList = document.getElementById(
-        "professionals-admin-list"
+        "professionals-admin-list",
       );
       const usersList = document.getElementById("users-list");
       const adminCompletedList = document.getElementById(
-        "admin-completed-list"
+        "admin-completed-list",
       );
       const adminCanceledList = document.getElementById("admin-canceled-list");
       const calendarSection = document.getElementById("calendar-section");
@@ -1072,22 +1072,22 @@
       const nextMonthBtn = document.getElementById("next-month-btn");
       const calendarDaysGrid = document.getElementById("calendar-days-grid");
       const availableHoursSection = document.getElementById(
-        "available-hours-section"
+        "available-hours-section",
       );
       const availableHoursList = document.getElementById(
-        "available-hours-list"
+        "available-hours-list",
       );
       const selectedDateDisplay = document.getElementById(
-        "selected-date-display"
+        "selected-date-display",
       );
       const triageProfessionalsSection = document.getElementById(
-        "triage-professionals-section"
+        "triage-professionals-section",
       );
       const triageProfessionalsList = document.getElementById(
-        "triage-professionals-list"
+        "triage-professionals-list",
       );
       const musculacaoTypeSection = document.getElementById(
-        "musculacao-type-section"
+        "musculacao-type-section",
       );
       const btnAvaliacao = document.getElementById("btn-avaliacao");
       const btnTreino = document.getElementById("btn-treino");
@@ -1142,8 +1142,8 @@
           type === "success"
             ? "bg-green-500"
             : type === "error"
-            ? "bg-red-500"
-            : "bg-gray-800"
+              ? "bg-red-500"
+              : "bg-gray-800"
         }`;
         toast.textContent = message;
         toastContainer.appendChild(toast);
@@ -1163,7 +1163,7 @@
         if (!divisao || !especialidade || !profissional || !data || !horario) {
           showToast(
             "Selecione divisão, especialidade, data e horário.",
-            "error"
+            "error",
           );
           return;
         }
@@ -1173,7 +1173,7 @@
             ? `${especialidade} (${tipo})`
             : especialidade;
         const msg = `Confirmar ${nomeExib} com ${profissional} em ${formatPtBrDate(
-          data
+          data,
         )} às ${horario}?`;
 
         showModal(
@@ -1182,7 +1182,7 @@
           async () => {
             await bookAppointment(); // só agenda AO CONFIRMAR
           },
-          true
+          true,
         );
       }
 
@@ -1218,7 +1218,7 @@
           }
         });
         cancelClone.addEventListener("click", () =>
-          modalContainer.classList.add("hidden")
+          modalContainer.classList.add("hidden"),
         );
 
         modalContainer.classList.remove("hidden");
@@ -1237,7 +1237,7 @@
           if (isAdmin) {
             if (isAdmin && !user.email) {
               console.warn(
-                "⚠️ Usuário admin não encontrado no Firebase Auth. Verifique se admin@policlinica.com foi criado."
+                "⚠️ Usuário admin não encontrado no Firebase Auth. Verifique se admin@policlinica.com foi criado.",
               );
             }
 
@@ -1271,7 +1271,7 @@
           doc(
             db,
             `artifacts/${appId}/public/data/policlinica-admin`,
-            "especialidades"
+            "especialidades",
           ),
           (docSnap) => {
             if (docSnap.exists()) {
@@ -1280,7 +1280,7 @@
               allSpecialties.DIVMESO = data.divmeso || [];
               console.log("Especialidades carregadas:", allSpecialties);
             }
-          }
+          },
         );
 
         // PROFISSIONAIS (corrigido policlinica-admin)
@@ -1288,14 +1288,14 @@
           doc(
             db,
             `artifacts/${appId}/public/data/policlinica-admin`,
-            "profissionais"
+            "profissionais",
           ),
           (docSnap) => {
             allProfessionals = docSnap.exists()
               ? docSnap.data().list || []
               : [];
             console.log("Profissionais carregados:", allProfessionals);
-          }
+          },
         );
       }
 
@@ -1309,7 +1309,7 @@
           doc(
             db,
             `artifacts/${appId}/public/data/policlinica-admin`,
-            "especialidades"
+            "especialidades",
           ),
           (docSnap) => {
             specialtiesAdminList.innerHTML = "";
@@ -1358,7 +1358,7 @@
                 professionalSpecialtySelect.appendChild(option);
               });
             }
-          }
+          },
         );
 
         // Escuta mudanças nos profissionais
@@ -1366,7 +1366,7 @@
           doc(
             db,
             `artifacts/${appId}/public/data/policlinica-admin`,
-            "profissionais"
+            "profissionais",
           ),
           (docSnap) => {
             professionalsAdminList.innerHTML = "";
@@ -1402,7 +1402,7 @@
                 professionalsAdminList.appendChild(item);
               });
             }
-          }
+          },
         );
       }
 
@@ -1426,7 +1426,7 @@
 
           const q = query(
             collectionGroup(db, "pacientes"),
-            where("triageStatus", "==", "pendente")
+            where("triageStatus", "==", "pendente"),
           );
 
           triageUnsub = onSnapshot(
@@ -1449,7 +1449,7 @@
                 const pacienteRef = doc(
                   db,
                   `artifacts/${appId}/users/${pacienteId}/pacientes`,
-                  pacienteId
+                  pacienteId,
                 );
                 const pacienteSnap = await getDoc(pacienteRef);
                 const pacienteData = pacienteSnap.exists()
@@ -1466,12 +1466,15 @@
                 item.className = "bg-gray-100 p-3 rounded-lg shadow-md";
                 item.innerHTML = `
             <p><b>Nome:</b> ${merged.nome || "---"} ${
-                  merged.sobrenome || ""
-                }</p>
+              merged.sobrenome || ""
+            }</p>
             <p><b>Email:</b> ${merged.email || "---"}</p>
             <p><b>Matrícula:</b> ${merged.matricula || "---"}</p>
             <p><b>Profissional da Triagem:</b> ${
-              merged.profissionalTriagem || merged.profissional || "---"
+              merged.triageProfissional ||
+              merged.profissionalTriagem ||
+              merged.profissional ||
+              "---"
             }</p>
             <div class="flex space-x-2 mt-2">
               <button class="btn-success px-3 py-1 text-sm" data-paciente="${pacienteId}" data-id="${triagemId}">Concluir</button>
@@ -1497,7 +1500,7 @@
                           triageUpdatedAt: Date.now(),
                         });
                         showToast("Triagem concluída!", "success");
-                      }
+                      },
                     );
                   });
 
@@ -1518,7 +1521,7 @@
                           triageUpdatedAt: Date.now(),
                         });
                         showToast("Triagem cancelada.", "info");
-                      }
+                      },
                     );
                   });
               }
@@ -1526,7 +1529,7 @@
             (err) => {
               console.error("❌ Erro no snapshot de triagens:", err);
               adminTriageList.innerHTML = `<p class="text-red-600">Erro ao listar triagens.</p>`;
-            }
+            },
           );
         } catch (e) {
           console.error("❌ Erro geral ao carregar triagens:", e);
@@ -1542,7 +1545,7 @@
           const docRef = doc(
             db,
             `artifacts/${appId}/users/${currentUserId}/pacientes`,
-            currentUserId
+            currentUserId,
           );
           const docSnap = await getDoc(docRef);
 
@@ -1562,7 +1565,7 @@
             return pacienteData;
           } else {
             console.warn(
-              "⚠️ Documento do paciente não encontrado. Criando novo..."
+              "⚠️ Documento do paciente não encontrado. Criando novo...",
             );
             pacienteData = {
               triageStatus: "pendente",
@@ -1595,7 +1598,7 @@
         // Logs de debug (opcional)
         console.log(
           "🚫 Triagem não concluída. Status atual:",
-          paciente.triageStatus || "indefinido"
+          paciente.triageStatus || "indefinido",
         );
 
         return false; // bloqueado para outros serviços
@@ -1607,7 +1610,7 @@
         date,
         professionalName,
         tipo,
-        especialidade
+        especialidade,
       ) {
         try {
           // Casos especiais -> não bloqueiam horário (aula coletiva)
@@ -1616,7 +1619,7 @@
               "👉 Horários livres (sem bloqueio) para:",
               especialidade,
               "tipo:",
-              tipo
+              tipo,
             );
             return [];
           }
@@ -1624,21 +1627,21 @@
           // Caminho da coleção de agendamentos
           const bookedRef = collection(
             db,
-            `artifacts/${appId}/public/data/agendamentos`
+            `artifacts/${appId}/public/data/agendamentos`,
           );
 
           // Consulta por data e profissional
           const q = query(
             bookedRef,
             where("data", "==", date),
-            where("profissional", "==", professionalName)
+            where("profissional", "==", professionalName),
           );
 
           const querySnapshot = await getDocs(q);
 
           // Extrai todos os horários já ocupados
           const reserved = querySnapshot.docs.map(
-            (docSnap) => docSnap.data().horario
+            (docSnap) => docSnap.data().horario,
           );
 
           console.log(
@@ -1647,7 +1650,7 @@
             "em",
             date,
             "=>",
-            reserved
+            reserved,
           );
 
           return reserved;
@@ -1740,7 +1743,7 @@
         pdf.text(
           `Data: ${appointment.data ? formatPtBrDate(appointment.data) : "—"}`,
           15,
-          y
+          y,
         );
         y += 8;
         pdf.text(`Horário: ${appointment.horario ?? "—"}`, 15, y);
@@ -1759,7 +1762,7 @@
             "Chegar com 15 minutos de antecedência para evitar atrasos.",
           105,
           260,
-          { align: "center" }
+          { align: "center" },
         );
 
         pdf.setFont("helvetica", "normal");
@@ -1768,7 +1771,7 @@
           "Endereço: Rua Tabira, 208 - Boa Vista - Recife/PE. Telefone: (81) 3184-3848",
           105,
           275,
-          { align: "center" }
+          { align: "center" },
         );
 
         // =========================================
@@ -1789,7 +1792,7 @@
         docSnap.text(
           `Relatório Mensal de Atendimentos - ${mes}/${ano}`,
           margin,
-          y
+          y,
         );
         y += lineHeight * 2;
 
@@ -1799,7 +1802,7 @@
 
         const q = query(
           collectionGroup(db, "consultas"),
-          where("status", "==", "concluída")
+          where("status", "==", "concluída"),
         );
 
         const querySnapshot = await getDocs(q);
@@ -1817,7 +1820,7 @@
             const patientDocRef = doc(
               db,
               `artifacts/${appId}/users/${data.pacienteId}/pacientes`,
-              data.pacienteId
+              data.pacienteId,
             );
             const patientDocSnap = await getDoc(patientDocRef);
             let pacienteNome = "Desconhecido";
@@ -1853,7 +1856,7 @@
           docSnap.text(
             `Data: ${appt.data} - Horário: ${appt.horario}`,
             margin,
-            y
+            y,
           );
           y += lineHeight;
 
@@ -1920,7 +1923,7 @@
           const hours = Array.isArray(raw)
             ? raw
                 .flatMap((v) =>
-                  typeof v === "string" && v.includes(",") ? v.split(",") : v
+                  typeof v === "string" && v.includes(",") ? v.split(",") : v,
                 )
                 .map((s) => (typeof s === "string" ? s.trim() : s))
                 .filter(Boolean)
@@ -1934,11 +1937,11 @@
             cell.addEventListener("click", async () => {
               agendamentoFlow.data = `${year}-${String(month + 1).padStart(
                 2,
-                "0"
+                "0",
               )}-${String(day).padStart(2, "0")}`;
               selectedDateDisplay.textContent = `${String(day).padStart(
                 2,
-                "0"
+                "0",
               )}/${String(month + 1).padStart(2, "0")}/${year}`;
 
               // marca seleção
@@ -1959,10 +1962,10 @@
       // HORÁRIOS – usa chaves 'dom','seg','ter','qua','qui','sex','sab'
       async function renderAvailableHours(professional, tipo) {
         const availableHoursSection = document.getElementById(
-          "available-hours-section"
+          "available-hours-section",
         );
         const availableHoursList = document.getElementById(
-          "available-hours-list"
+          "available-hours-list",
         );
 
         availableHoursList.innerHTML = "";
@@ -1995,7 +1998,7 @@
         const allHours = Array.isArray(raw)
           ? raw
               .flatMap((v) =>
-                typeof v === "string" && v.includes(",") ? v.split(",") : v
+                typeof v === "string" && v.includes(",") ? v.split(",") : v,
               )
               .map((s) => (typeof s === "string" ? s.trim() : s))
               .filter(Boolean)
@@ -2011,7 +2014,7 @@
             agendamentoFlow.data,
             professional.nome,
             isMusculacao ? hoursKey : "avaliacao", // nas demais a lógica é "consulta"
-            agendamentoFlow.especialidade
+            agendamentoFlow.especialidade,
           );
         }
 
@@ -2031,7 +2034,11 @@
           btn.addEventListener("click", () => {
             agendamentoFlow.horario = h;
             agendamentoFlow.profissional = professional.nome;
-            agendamentoFlow.tipo = isMusculacao ? hoursKey : "consulta";
+            if (agendamentoFlow.especialidade === "Triagem") {
+              agendamentoFlow.tipo = "triagem";
+            } else {
+              agendamentoFlow.tipo = isMusculacao ? hoursKey : "consulta";
+            }
             openConfirmBooking(); // abre modal de confirmação
           });
           availableHoursList.appendChild(btn);
@@ -2042,7 +2049,7 @@
         triageProfessionalsList.innerHTML = "";
         const triageSpecialties = ["Enfermeiro", "Farmacêutico"];
         const triageProfessionals = allProfessionals.filter((p) =>
-          triageSpecialties.includes(p.especialidade)
+          triageSpecialties.includes(p.especialidade),
         );
 
         triageProfessionals.forEach((prof) => {
@@ -2053,25 +2060,20 @@
           selectBtn.className = "btn-primary mt-2";
           selectBtn.textContent = "Selecionar";
           selectBtn.onclick = async () => {
+            // ✅ define que este fluxo é TRIAGEM
+            agendamentoFlow.especialidade = "Triagem";
+            agendamentoFlow.tipo = "triagem";
             agendamentoFlow.profissional = prof.nome;
 
-            // 🔹 Já registra no banco que o paciente está em triagem pendente
-            const docRef = doc(
-              db,
-              `artifacts/${appId}/users/${currentUserId}/pacientes`,
-              currentUserId
-            );
-            await setDoc(
-              docRef,
-              {
-                triageStatus: "pendente",
-                triageUpdatedAt: Date.now(),
-                profissional: prof.nome, // guarda o profissional escolhido
-              },
-              { merge: true }
-            );
+            // limpa seleção anterior
+            agendamentoFlow.data = "";
+            agendamentoFlow.horario = "";
 
             triageProfessionalsSection.classList.add("hidden");
+
+            // ✅ (se você estiver usando o ajuste do container pai)
+            specialtySection.classList.remove("hidden");
+
             calendarSection.classList.remove("hidden");
             await renderCalendar(currentMonth, currentYear, prof, "avaliacao");
           };
@@ -2096,7 +2098,7 @@
       async function updateProfessionalsUI(tipo, callback = () => {}) {
         professionalsList.innerHTML = "";
         const professionals = allProfessionals.filter(
-          (p) => p.especialidade === agendamentoFlow.especialidade
+          (p) => p.especialidade === agendamentoFlow.especialidade,
         );
         if (professionals.length === 0) {
           professionalsList.innerHTML =
@@ -2152,7 +2154,7 @@
         try {
           await updateDoc(
             doc(db, `artifacts/${appId}/users/${userId}/pacientes`, userId),
-            { triageConcluida: true }
+            { triageConcluida: true },
           );
           showToast("✅ Triagem concluída com sucesso!", "success");
         } catch (e) {
@@ -2176,7 +2178,7 @@
           const userCredential = await createUserWithEmailAndPassword(
             auth,
             email,
-            password
+            password,
           );
           const user = userCredential.user;
           await setDoc(
@@ -2193,7 +2195,7 @@
               triageStatus: "pendente", // 🔹 novo campo usado pelo admin
               triageUpdatedAt: Date.now(), // para auditoria/ordenar
               avaliacaoMusculacaoConcluida: false,
-            }
+            },
           );
 
           showToast("Cadastro realizado com sucesso!", "success");
@@ -2313,37 +2315,39 @@
           await addDoc(
             collection(
               db,
-              `artifacts/${appId}/users/${currentUserId}/consultas`
+              `artifacts/${appId}/users/${currentUserId}/consultas`,
             ),
-            newAppointment
+            newAppointment,
           );
 
           // (2b) se for TRIAGEM da DIVSA → atualizar status do paciente
+          // (2b) se for TRIAGEM → atualizar status do paciente
           if (
-            newAppointment.divisao === "DIVSA" &&
-            ((newAppointment.especialidade || "").toLowerCase() === "triagem" ||
-              (newAppointment.tipo || "").toLowerCase() === "triagem")
+            newAppointment.especialidade === "Triagem" ||
+            newAppointment.tipo === "triagem"
           ) {
-            console.log("🟡 Registrando paciente como triagem pendente");
             await setDoc(
               doc(
                 db,
                 `artifacts/${appId}/users/${currentUserId}/pacientes`,
-                currentUserId
+                currentUserId,
               ),
               {
-                triageConcluida: false, // compatibilidade
                 triageStatus: "pendente",
                 triageUpdatedAt: Date.now(),
-                profissionalTriagem:
-                  newAppointment.profissional || "Não informado",
+
+                // ✅ ADICIONAR ESTAS LINHAS
+                triageProfissional: newAppointment.profissional,
+                triageData: newAppointment.data,
+                triageHorario: newAppointment.horario,
+
                 nome: pacienteData?.nome || "",
                 sobrenome: pacienteData?.sobrenome || "",
                 matricula: pacienteData?.matricula || "",
                 celular: pacienteData?.celular || "",
                 email: pacienteData?.email || "",
               },
-              { merge: true }
+              { merge: true },
             );
           }
 
@@ -2361,7 +2365,7 @@
                 data: newAppointment.data,
                 horario: newAppointment.horario,
                 profissional: newAppointment.profissional,
-              }
+              },
             );
           }
 
@@ -2401,15 +2405,15 @@
                     <p><strong>Especialidade:</strong> ${
                       appointment.especialidade
                     }${
-          appointment.tipo && appointment.tipo !== "consulta"
-            ? ` (${appointment.tipo})`
-            : ""
-        }</p>
+                      appointment.tipo && appointment.tipo !== "consulta"
+                        ? ` (${appointment.tipo})`
+                        : ""
+                    }</p>
                     <p><strong>Profissional:</strong> ${
                       appointment.profissional
                     }</p>
                     <p><strong>Data:</strong> ${formatPtBrDate(
-                      appointment.data
+                      appointment.data,
                     )}</p>
                     <p><strong>Horário:</strong> ${appointment.horario}</p>
                 </div>
@@ -2436,7 +2440,7 @@
           }
         });
         cancelClone.addEventListener("click", () =>
-          modalContainer.classList.add("hidden")
+          modalContainer.classList.add("hidden"),
         );
 
         modalContainer.classList.remove("hidden");
@@ -2444,7 +2448,7 @@
 
       // BOTÃO CONFIRMAR AGENDAMENTO
       const confirmAppointmentBtn = document.getElementById(
-        "confirm-appointment-btn"
+        "confirm-appointment-btn",
       );
 
       if (confirmAppointmentBtn) {
@@ -2456,7 +2460,7 @@
           ) {
             showToast(
               "⚠️ Selecione a data, horário e profissional antes de confirmar!",
-              "error"
+              "error",
             );
             return;
           }
@@ -2471,13 +2475,13 @@
           currentYear--;
         }
         const professional = allProfessionals.find(
-          (p) => p.nome === agendamentoFlow.profissional
+          (p) => p.nome === agendamentoFlow.profissional,
         );
         await renderCalendar(
           currentMonth,
           currentYear,
           professional,
-          agendamentoFlow.tipo
+          agendamentoFlow.tipo,
         );
       });
 
@@ -2488,13 +2492,13 @@
           currentYear++;
         }
         const professional = allProfessionals.find(
-          (p) => p.nome === agendamentoFlow.profissional
+          (p) => p.nome === agendamentoFlow.profissional,
         );
         await renderCalendar(
           currentMonth,
           currentYear,
           professional,
-          agendamentoFlow.tipo
+          agendamentoFlow.tipo,
         );
       });
 
@@ -2568,7 +2572,7 @@
             title = "Consultas Canceladas (Admin)";
             fetchAdminAppointments(
               ["cancelada", "desistência"],
-              adminCanceledList
+              adminCanceledList,
             );
             break;
           case "admin-relatorios":
@@ -2602,7 +2606,7 @@
 
         const q = query(
           collection(db, `artifacts/${appId}/users/${currentUserId}/consultas`),
-          where("status", "==", status)
+          where("status", "==", status),
         );
         onSnapshot(q, (querySnapshot) => {
           listElement.innerHTML = "";
@@ -2626,8 +2630,8 @@
     <p class="font-bold text-lg">${appointmentName} - ${data.divisao}</p>
     <p class="text-gray-600">Profissional: ${data.profissional}</p>
     <p class="text-sm text-gray-500">Data: ${data.data} - Horário: ${
-              data.horario
-            }</p>
+      data.horario
+    }</p>
   </div>
   <div class="flex space-x-2">
     ${
@@ -2677,8 +2681,8 @@
                       doc(
                         db,
                         `artifacts/${appId}/users/${currentUserId}/consultas`,
-                        id
-                      )
+                        id,
+                      ),
                     );
 
                     // 2. Libera horário antigo
@@ -2686,7 +2690,7 @@
                       const bookedDocRef = doc(
                         db,
                         `artifacts/${appId}/public/data/agendamentos`,
-                        `${date}-${professional}-${hour}`
+                        `${date}-${professional}-${hour}`,
                       );
                       await deleteDoc(bookedDocRef);
                     }
@@ -2694,14 +2698,14 @@
                     // 3. Só depois redireciona
                     showToast(
                       "Consulta cancelada. Por favor, agende uma nova.",
-                      "info"
+                      "info",
                     );
                     renderPage("agendamento");
                   } catch (err) {
                     console.error("Erro ao remarcar consulta:", err);
                     showToast("Erro ao remarcar a consulta.", "error");
                   }
-                }
+                },
               );
             });
           });
@@ -2724,16 +2728,16 @@
                       doc(
                         db,
                         `artifacts/${appId}/users/${currentUserId}/consultas`,
-                        id
+                        id,
                       ),
-                      { status: "cancelada", updatedAt: Date.now() }
+                      { status: "cancelada", updatedAt: Date.now() },
                     );
 
                     // 2. Libera horário no public/agendamentos
                     const bookedDocRef = doc(
                       db,
                       `artifacts/${appId}/public/data/agendamentos`,
-                      `${date}-${professional}-${hour}`
+                      `${date}-${professional}-${hour}`,
                     );
                     await deleteDoc(bookedDocRef);
 
@@ -2743,7 +2747,7 @@
                     console.error("Erro ao cancelar consulta:", err);
                     showToast("Erro ao cancelar a consulta.", "error");
                   }
-                }
+                },
               );
             });
           });
@@ -2754,7 +2758,7 @@
         doc(
           db,
           `artifacts/${appId}/public/data/policlinica-admin`,
-          "especialidades"
+          "especialidades",
         ),
         (docSnap) => {
           specialtiesAdminList.innerHTML = "";
@@ -2801,7 +2805,7 @@
 
             console.log("Especialidades carregadas:", allSpecialties);
           }
-        }
+        },
       );
 
       // Listener de profissionais (salvos em artifacts/{appId}/public/data/policlinica-admin/profissionais)
@@ -2809,7 +2813,7 @@
         doc(
           db,
           `artifacts/${appId}/public/data/policlinica-admin`,
-          "profissionais"
+          "profissionais",
         ),
         (docSnap) => {
           professionalsAdminList.innerHTML = "";
@@ -2838,14 +2842,14 @@
               professionalsAdminList.appendChild(item);
             });
           }
-        }
+        },
       );
 
       // Listener to fetch all appointments for the admin view
       // Note: This requires the Firestore rules to be updated to allow the admin to read all 'consultas' collections
       const q = query(
         collectionGroup(db, "consultas"),
-        where("status", "==", "agendada")
+        where("status", "==", "agendada"),
       );
       onSnapshot(q, async (querySnapshot) => {
         allAppointmentsList.innerHTML = "";
@@ -2863,7 +2867,7 @@
             const patientDocRef = doc(
               db,
               `artifacts/${appId}/users/${patientId}/pacientes`,
-              patientId
+              patientId,
             );
             const patientDocSnap = await getDoc(patientDocRef);
             if (patientDocSnap.exists()) {
@@ -2966,9 +2970,9 @@
                         doc(
                           db,
                           `artifacts/${appId}/users/${pacienteId}/consultas`,
-                          docId
+                          docId,
                         ),
-                        { status: "cancelada", updatedAt: Date.now() }
+                        { status: "cancelada", updatedAt: Date.now() },
                       );
 
                       // 2. Remove bloqueio, exceto treino musculação e Funcional
@@ -2976,7 +2980,7 @@
                         const bookedDocRef = doc(
                           db,
                           `artifacts/${appId}/public/data/agendamentos`,
-                          `${date}-${professional}-${hour}`
+                          `${date}-${professional}-${hour}`,
                         );
                         await deleteDoc(bookedDocRef);
                       }
@@ -2987,7 +2991,7 @@
                       console.error("Erro ao cancelar consulta (admin):", err);
                       showToast("Erro ao cancelar consulta.", "error");
                     }
-                  }
+                  },
                 );
               });
             });
@@ -3015,9 +3019,9 @@
                         doc(
                           db,
                           `artifacts/${appId}/users/${pacienteId}/consultas`,
-                          docId
+                          docId,
                         ),
-                        { status: "desistencia", updatedAt: Date.now() }
+                        { status: "desistencia", updatedAt: Date.now() },
                       );
 
                       // 2. Remove bloqueio (exceto treino musculação e Funcional)
@@ -3025,7 +3029,7 @@
                         const bookedDocRef = doc(
                           db,
                           `artifacts/${appId}/public/data/agendamentos`,
-                          `${date}-${professional}-${hour}`
+                          `${date}-${professional}-${hour}`,
                         );
                         await deleteDoc(bookedDocRef);
                       }
@@ -3033,13 +3037,13 @@
                       // 3. Feedback
                       showToast(
                         "Consulta marcada como desistência e horário liberado!",
-                        "success"
+                        "success",
                       );
                     } catch (err) {
                       console.error("Erro ao registrar desistência:", err);
                       showToast("Erro ao registrar desistência.", "error");
                     }
-                  }
+                  },
                 );
               });
             });
@@ -3067,9 +3071,9 @@
                         doc(
                           db,
                           `artifacts/${appId}/users/${pacienteId}/consultas`,
-                          docId
+                          docId,
                         ),
-                        { status: "concluida", updatedAt: Date.now() }
+                        { status: "concluida", updatedAt: Date.now() },
                       );
 
                       // 2. Remove bloqueio, exceto treino musculação e Funcional
@@ -3077,7 +3081,7 @@
                         const bookedDocRef = doc(
                           db,
                           `artifacts/${appId}/public/data/agendamentos`,
-                          `${date}-${professional}-${hour}`
+                          `${date}-${professional}-${hour}`,
                         );
                         await deleteDoc(bookedDocRef);
                       }
@@ -3091,9 +3095,9 @@
                           doc(
                             db,
                             `artifacts/${appId}/users/${pacienteId}/pacientes`,
-                            pacienteId
+                            pacienteId,
                           ),
-                          { avaliacaoMusculacaoConcluida: true }
+                          { avaliacaoMusculacaoConcluida: true },
                         );
                       }
 
@@ -3103,7 +3107,7 @@
                       console.error("Erro ao concluir consulta:", err);
                       showToast("Erro ao concluir consulta.", "error");
                     }
-                  }
+                  },
                 );
               });
             });
@@ -3128,10 +3132,10 @@
                 "Modifique os detalhes da consulta abaixo:",
                 async () => {
                   const newEspecialidade = modalContent.querySelector(
-                    "#modal-specialty-select"
+                    "#modal-specialty-select",
                   ).value;
                   const newProfissional = modalContent.querySelector(
-                    "#modal-professional-select"
+                    "#modal-professional-select",
                   ).value;
                   const newData =
                     modalContent.querySelector("#modal-date-input").value;
@@ -3143,14 +3147,14 @@
                       doc(
                         db,
                         `artifacts/${appId}/users/${pacienteId}/consultas`,
-                        docId
+                        docId,
                       ),
                       {
                         especialidade: newEspecialidade,
                         profissional: newProfissional,
                         data: newData,
                         horario: newHorario,
-                      }
+                      },
                     );
                     if (
                       currentTipo !== "treino" &&
@@ -3162,20 +3166,20 @@
                           doc(
                             db,
                             `artifacts/${appId}/public/data/agendamentos`,
-                            bookedDocId
-                          )
+                            bookedDocId,
+                          ),
                         );
                         await setDoc(
                           doc(
                             db,
                             `artifacts/${appId}/public/data/agendamentos`,
-                            newBookedDocId
+                            newBookedDocId,
                           ),
                           {
                             data: newData,
                             horario: newHorario,
                             profissional: newProfissional,
-                          }
+                          },
                         );
                       }
                     }
@@ -3186,7 +3190,7 @@
                   } finally {
                     modalContainer.classList.add("hidden");
                   }
-                }
+                },
               );
 
               const divisaoOptions =
@@ -3202,7 +3206,7 @@
                   (s) =>
                     `<option value="${s}" ${
                       s === currentEspecialidade ? "selected" : ""
-                    }>${s}</option>`
+                    }>${s}</option>`,
                 )
                 .join("");
               const professionalOptions = allProfessionals
@@ -3211,11 +3215,11 @@
                   (p) =>
                     `<option value="${p.nome}" ${
                       p.nome === currentProfissional ? "selected" : ""
-                    }>${p.nome}</option>`
+                    }>${p.nome}</option>`,
                 )
                 .join("");
               const professional = allProfessionals.find(
-                (p) => p.nome === currentProfissional
+                (p) => p.nome === currentProfissional,
               );
               const dayKey = ["dom", "seg", "ter", "qua", "qui", "sex", "sab"][
                 new Date(currentData).getDay()
@@ -3232,18 +3236,18 @@
                     ? await getBookedHours(
                         currentData,
                         currentProfissional,
-                        "avaliacao"
+                        "avaliacao",
                       )
                     : [];
                 const filteredHours = allHours.filter(
-                  (h) => !bookedHours.includes(h)
+                  (h) => !bookedHours.includes(h),
                 );
                 hourOptions = filteredHours
                   .map(
                     (h) =>
                       `<option value="${h}" ${
                         h === currentHorario ? "selected" : ""
-                      }>${h}</option>`
+                      }>${h}</option>`,
                   )
                   .join("");
               } else {
@@ -3251,17 +3255,17 @@
                 const bookedHours = await getBookedHours(
                   currentData,
                   currentProfissional,
-                  "avaliacao"
+                  "avaliacao",
                 );
                 const filteredHours = availableHours.filter(
-                  (h) => !bookedHours.includes(h)
+                  (h) => !bookedHours.includes(h),
                 );
                 hourOptions = filteredHours
                   .map(
                     (h) =>
                       `<option value="${h}" ${
                         h === currentHorario ? "selected" : ""
-                      }>${h}</option>`
+                      }>${h}</option>`,
                   )
                   .join("");
               }
@@ -3294,13 +3298,13 @@
                             `;
 
               const modalDivisaoSelect = modalContent.querySelector(
-                "#modal-divisao-select"
+                "#modal-divisao-select",
               );
               const modalSpecialtySelect = modalContent.querySelector(
-                "#modal-specialty-select"
+                "#modal-specialty-select",
               );
               const modalProfessionalSelect = modalContent.querySelector(
-                "#modal-professional-select"
+                "#modal-professional-select",
               );
               const modalDateInput =
                 modalContent.querySelector("#modal-date-input");
@@ -3318,7 +3322,7 @@
                 const newDate = modalDateInput.value;
                 const newProfessional = modalProfessionalSelect.value;
                 const professional = allProfessionals.find(
-                  (p) => p.nome === newProfessional
+                  (p) => p.nome === newProfessional,
                 );
                 const dayKey = [
                   "dom",
@@ -3340,10 +3344,10 @@
                     const bookedHours = await getBookedHours(
                       newDate,
                       newProfessional,
-                      "avaliacao"
+                      "avaliacao",
                     );
                     hoursList = hoursList.filter(
-                      (h) => !bookedHours.includes(h)
+                      (h) => !bookedHours.includes(h),
                     );
                   }
                 } else {
@@ -3351,7 +3355,7 @@
                   const bookedHours = await getBookedHours(
                     newDate,
                     newProfessional,
-                    "avaliacao"
+                    "avaliacao",
                   );
                   hoursList = hoursList.filter((h) => !bookedHours.includes(h));
                 }
@@ -3372,15 +3376,15 @@
               });
               modalSpecialtySelect.addEventListener(
                 "change",
-                updateProfessionalAndHourOptions
+                updateProfessionalAndHourOptions,
               );
               modalProfessionalSelect.addEventListener(
                 "change",
-                updateProfessionalAndHourOptions
+                updateProfessionalAndHourOptions,
               );
               modalDateInput.addEventListener(
                 "change",
-                updateProfessionalAndHourOptions
+                updateProfessionalAndHourOptions,
               );
             });
           });
@@ -3394,12 +3398,12 @@
         if (Array.isArray(status)) {
           q = query(
             collectionGroup(db, "consultas"),
-            where("status", "in", status)
+            where("status", "in", status),
           );
         } else {
           q = query(
             collectionGroup(db, "consultas"),
-            where("status", "==", status)
+            where("status", "==", status),
           );
         }
 
@@ -3418,7 +3422,7 @@
               const patientDocRef = doc(
                 db,
                 `artifacts/${appId}/users/${patientId}/pacientes`,
-                patientId
+                patientId,
               );
               const patientDocSnap = await getDoc(patientDocRef);
               if (patientDocSnap.exists()) {
@@ -3459,7 +3463,7 @@
           const docRef = doc(
             db,
             `artifacts/${appId}/public/data/policlinica-admin`,
-            "especialidades"
+            "especialidades",
           );
           const docSnap = await getDoc(docRef);
           const data = docSnap.exists()
@@ -3489,12 +3493,12 @@
               const docRef = doc(
                 db,
                 `artifacts/${appId}/public/data/policlinica-admin`,
-                "especialidades"
+                "especialidades",
               );
               const docSnap = await getDoc(docRef);
               const data = docSnap.data();
               data[divisao.toLowerCase()] = data[divisao.toLowerCase()].filter(
-                (s) => s !== name
+                (s) => s !== name,
               );
               await setDoc(docRef, data);
               showToast("Especialidade excluída com sucesso!", "success");
@@ -3502,7 +3506,7 @@
               console.error("Erro ao excluir especialidade:", e);
               showToast("Erro ao excluir especialidade.", "error");
             }
-          }
+          },
         );
       }
 
@@ -3511,7 +3515,7 @@
           const docRef = doc(
             db,
             `artifacts/${appId}/public/data/policlinica-admin`,
-            "profissionais"
+            "profissionais",
           );
           const docSnap = await getDoc(docRef);
           const data = docSnap.exists() ? docSnap.data() : { list: [] };
@@ -3547,7 +3551,7 @@
               const docRef = doc(
                 db,
                 `artifacts/${appId}/public/data/policlinica-admin`,
-                "profissionais"
+                "profissionais",
               );
               const docSnap = await getDoc(docRef);
               const data = docSnap.data();
@@ -3558,7 +3562,7 @@
               console.error("Erro ao excluir profissional.", e);
               showToast("Erro ao excluir profissional.", "error");
             }
-          }
+          },
         );
       }
 
@@ -3597,8 +3601,8 @@
             container.innerHTML += `
                         <div>
                             <label for="edit-${containerId}-${day}" class="block text-sm font-medium mb-1">${
-              day.charAt(0).toUpperCase() + day.slice(1)
-            }</label>
+                              day.charAt(0).toUpperCase() + day.slice(1)
+                            }</label>
                             <input type="text" id="edit-${containerId}-${day}" class="w-full" value="${hours}">
                         </div>
                     `;
@@ -3608,16 +3612,16 @@
         if (professional.especialidade === "Musculação") {
           renderHoursInputs(
             "avaliacao-hours-container",
-            professional.horarios.avaliacao || {}
+            professional.horarios.avaliacao || {},
           );
           renderHoursInputs(
             "treino-hours-container",
-            professional.horarios.treino || {}
+            professional.horarios.treino || {},
           );
         } else {
           renderHoursInputs(
             "geral-hours-container",
-            professional.horarios || {}
+            professional.horarios || {},
           );
         }
 
@@ -3633,14 +3637,14 @@
             newHours.treino = {};
             weekdayNames.forEach((day) => {
               const avaliacaoHoursString = document.getElementById(
-                `edit-avaliacao-hours-container-${day}`
+                `edit-avaliacao-hours-container-${day}`,
               ).value;
               newHours.avaliacao[day] = avaliacaoHoursString
                 .split(",")
                 .map((h) => h.trim())
                 .filter((h) => h);
               const treinoHoursString = document.getElementById(
-                `edit-treino-hours-container-${day}`
+                `edit-treino-hours-container-${day}`,
               ).value;
               newHours.treino[day] = treinoHoursString
                 .split(",")
@@ -3650,7 +3654,7 @@
           } else {
             weekdayNames.forEach((day) => {
               const hoursString = document.getElementById(
-                `edit-geral-hours-container-${day}`
+                `edit-geral-hours-container-${day}`,
               ).value;
               newHours[day] = hoursString
                 .split(",")
@@ -3663,12 +3667,12 @@
             const docRef = doc(
               db,
               `artifacts/${appId}/public/data/policlinica-admin`,
-              "profissionais"
+              "profissionais",
             );
             const docSnap = await getDoc(docRef);
             const data = docSnap.exists() ? docSnap.data() : { list: [] };
             const professionalIndex = data.list.findIndex(
-              (p) => p.nome === professional.nome
+              (p) => p.nome === professional.nome,
             );
             if (professionalIndex > -1) {
               data.list[professionalIndex].horarios = newHours;
@@ -3791,7 +3795,7 @@
                 "Tem certeza que deseja excluir este usuário?",
                 () => {
                   deleteUser(userId);
-                }
+                },
               );
             });
           });
@@ -3854,7 +3858,7 @@
           try {
             await updateDoc(
               doc(db, `artifacts/${appId}/users/${user.id}/pacientes`, user.id),
-              updatedData
+              updatedData,
             );
             showToast("Dados do usuário atualizados com sucesso!", "success");
           } catch (e) {
@@ -3874,7 +3878,7 @@
           // Deletar todas as consultas do usuário
           const consultasRef = collection(
             db,
-            `artifacts/${appId}/users/${userId}/consultas`
+            `artifacts/${appId}/users/${userId}/consultas`,
           );
           const consultasSnap = await getDocs(consultasRef);
 
@@ -3888,7 +3892,7 @@
           const pacienteRef = doc(
             db,
             `artifacts/${appId}/users/${userId}/pacientes`,
-            userId
+            userId,
           );
           await deleteDoc(pacienteRef);
 
@@ -3911,7 +3915,7 @@
           const ref = doc(
             db,
             `artifacts/${appId}/users/${pacienteId}/pacientes`,
-            pacienteId
+            pacienteId,
           );
           const snap = await getDoc(ref);
           if (snap.exists()) {
@@ -3938,7 +3942,7 @@
         const q = query(
           collectionGroup(db, "consultas"),
           where("especialidade", "==", "Triagem"),
-          where("status", "==", "agendada")
+          where("status", "==", "agendada"),
         );
 
         onSnapshot(
@@ -3999,7 +4003,7 @@
             listEl.innerHTML = `<p class="text-red-600">Erro ao carregar triagens: ${
               err?.message || err
             }</p>`;
-          }
+          },
         );
       }
 
@@ -4013,14 +4017,14 @@
           // 2) libera slot (agendamento) — para triagem não é treino
           const slotId = `${appt.data}-${appt.profissional}-${appt.horario}`;
           await deleteDoc(
-            doc(db, `artifacts/${appId}/public/data/agendamentos`, slotId)
+            doc(db, `artifacts/${appId}/public/data/agendamentos`, slotId),
           );
 
           // 3) seta flag no perfil do paciente
           const pacienteRef = doc(
             db,
             `artifacts/${appId}/users/${appt.pacienteId}/pacientes`,
-            appt.pacienteId
+            appt.pacienteId,
           );
           await updateDoc(pacienteRef, { triageConcluida: true });
 
@@ -4042,7 +4046,7 @@
           // 2) libera slot
           const slotId = `${appt.data}-${appt.profissional}-${appt.horario}`;
           await deleteDoc(
-            doc(db, `artifacts/${appId}/public/data/agendamentos`, slotId)
+            doc(db, `artifacts/${appId}/public/data/agendamentos`, slotId),
           );
 
           showToast("Triagem cancelada.", "success");
@@ -4057,7 +4061,7 @@
 
       window.addEventListener("DOMContentLoaded", () => {
         const completeTriageBtn = document.getElementById(
-          "complete-triage-btn"
+          "complete-triage-btn",
         );
 
         if (completeTriageBtn) {
@@ -4070,14 +4074,14 @@
                   const docRef = doc(
                     db,
                     `artifacts/${appId}/users/${currentUserId}/pacientes`,
-                    currentUserId
+                    currentUserId,
                   );
 
                   await updateDoc(docRef, { triageConcluida: true });
 
                   showToast(
                     "Triagem concluída com sucesso! Agora você pode agendar na DIVSA.",
-                    "success"
+                    "success",
                   );
 
                   triageAlert.classList.add("hidden");
@@ -4087,7 +4091,7 @@
                   showToast("Erro ao concluir triagem.", "error");
                   console.error(e);
                 }
-              }
+              },
             );
           });
         }
